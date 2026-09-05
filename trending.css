@@ -1,0 +1,191 @@
+
+:root {
+    --bg: #080b11;
+    --nav: #0b0f16;
+    --card: #101620;
+    --border: #202936;
+    --orange: #ff7a18;
+    --blue: #4f8cff;
+    --text: #f1f5fb;
+    --muted: #8995a7;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: Arial, sans-serif;
+}
+
+header {
+    height: 70px;
+    background: var(--nav);
+    border-bottom: 1px solid var(--border);
+
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    padding: 0 7%;
+}
+
+header span {
+    font-size: 24px;
+    font-weight: bold;
+    margin-right: auto;
+}
+
+header a {
+    color: var(--muted);
+    text-decoration: none;
+}
+
+header a:hover,
+header #active {
+    color: var(--blue);
+}
+
+main {
+    width: 90%;
+    max-width: 1000px;
+    margin: auto;
+}
+
+.hero {
+    text-align: center;
+    padding: 80px 20px 60px;
+}
+
+.fire {
+    font-size: 50px;
+    margin-bottom: 15px;
+}
+
+.hero h1 {
+    font-size: 45px;
+    margin-bottom: 12px;
+}
+
+.hero p,
+.section-heading p {
+    color: var(--muted);
+}
+
+.section-heading {
+    margin-bottom: 25px;
+}
+
+.section-heading h2 {
+    margin-bottom: 8px;
+}
+
+.trending-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.trend-card {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+
+    padding: 18px 22px;
+
+    transition: 0.25s;
+}
+
+.trend-card:hover {
+    transform: translateX(5px);
+    border-color: var(--orange);
+}
+
+.rank {
+    width: 35px;
+    font-size: 24px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.app-icon {
+    width: 65px;
+    height: 65px;
+    flex-shrink: 0;
+
+    border-radius: 15px;
+    background: var(--orange);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 26px;
+    font-weight: bold;
+}
+
+.app-info {
+    flex: 1;
+}
+
+.app-info h3 {
+    margin-bottom: 5px;
+}
+
+.app-info p {
+    color: var(--muted);
+    margin-bottom: 7px;
+}
+
+.app-info span {
+    font-size: 13px;
+    color: var(--muted);
+}
+
+.trend-card button {
+    border: none;
+    border-radius: 8px;
+    padding: 11px 18px;
+
+    background: var(--blue);
+    color: white;
+
+    cursor: pointer;
+}
+
+.trend-card button:hover {
+    background: #669cff;
+}
+
+@media (max-width: 700px) {
+
+    header {
+        gap: 15px;
+        padding: 0 4%;
+    }
+
+    header a {
+        font-size: 13px;
+    }
+
+    .hero h1 {
+        font-size: 35px;
+    }
+
+    .trend-card {
+        gap: 12px;
+        padding: 14px;
+    }
+
+    .trend-card button {
+        padding: 9px 12px;
+    }
+}
+

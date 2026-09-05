@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Sign Up | TekoHub</title>
+
+    <link rel="stylesheet" href="signUp.css"> 
+    
+    </head>
+    <body>
+
+        <header>
+
+            <span>Tekohub</span>
+
+            <a href="teko.html">Home</a>
+            <a href="exp.html">Explore</a>
+            <a href="cat.html">Categories</a>
+            <a href="trending.html">Trending</a>
+            <a href="upload.html">Upload</a>
+            <a href="login.html" id="active">Login</a>
+            
+
+        </header>
+
+        <section id="sign-up">
+
+            <div class="sign-up-heading">
+
+                <h2>Create Your Account</h2>
+
+                <p>Join TekoHub and start sharing your apps with the world.</p>
+
+            </div>
+
+            <form id="sign-up-form" action="#" method="POST">
+
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" required>
+
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+
+                <label for="confirm-password">Confirm Password:</label>
+                <input type="password" id="confirm-password" name="confirm-password" required>
+
+                <button type="submit">Sign Up</button>
+
+                <button type="button" id="google-signup">
+                    Sign up with Google
+                </button>
+
+                <button type="button" id="email-signup">
+                    Sign up with Email
+                </button>
+
+            </form>
+
+            
+        </section>
+
+<script src="signUp.js"></script>
+
+    </body>
+
+</html>

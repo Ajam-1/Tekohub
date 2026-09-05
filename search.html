@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Search | TekoHub</title>
+
+    <link rel="stylesheet" href="search.css">
+
+</head>
+
+<body>
+
+<header class="navbar">
+
+    <span>Tekohub</span>
+
+    <a href="teko.html">Home</a>
+    <a href="exp.html">Explore</a>
+    <a href="cat.html">Categories</a>
+    <a href="trending.html">Trending</a>
+    <a href="profile.html">Profile</a>
+    <a href="upload.html">Upload</a>
+    <a href="login.html">Login</a>
+
+</header>
+
+
+<section id="search">
+
+    <div class="search-heading">
+
+        <h2>Search Results</h2>
+
+        <p id="search-query">Results for: App A</p>
+
+    </div>
+
+
+    <div id="results-container">
+
+
+        <div class="result-container" data-app="app a">
+
+            <div class="result-card">
+
+                <img src="img" alt="App A">
+
+                <div class="app-info">
+
+                    <p>APP A</p>
+
+                    <p>A useful app description</p>
+
+                    <p>⭐ 4.5 &nbsp; 120 downloads</p>
+
+                </div>
+
+                <a href="app.html?id=app-a">View App</a>
+
+            </div>
+
+        </div>
+
+
+        <div class="result-container" data-app="app b">
+
+            <p>APP B</p>
+
+            <div class="result-card">
+
+                <img src="img" alt="App B">
+
+                <div class="app-info">
+
+                    <p>APP B</p>
+
+                    <p>A useful app description</p>
+
+                    <p>⭐ 4.5 &nbsp; 120 downloads</p>
+
+                </div>
+
+                <a href="app.html?id=app-b">View App</a>
+
+            </div>
+
+        </div>
+
+
+        <div class="result-container" data-app="app c">
+
+            <div class="result-card">
+
+                <img src="img" alt="App C">
+
+                <div class="app-info">
+
+                    <p>APP C</p>
+
+                    <p>A useful app description</p>
+
+                    <p>⭐ 4.5 &nbsp; 120 downloads</p>
+
+                </div>
+
+                <a href="app.html?id=app-c">View App</a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <section id="no-result">
+
+        <h2>No results found</h2>
+
+        <p>Try searching for a different app.</p>
+
+    </section>
+
+</section>
+
+</body>
+<script src="search.js"></script>
+</html>

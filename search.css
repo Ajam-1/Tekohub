@@ -1,0 +1,436 @@
+/* ================================
+   RESET
+================================ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #0b0f19;
+    color: #f8fafc;
+    min-height: 100vh;
+}
+
+
+/* ================================
+   NAVBAR
+================================ */
+
+.navbar {
+    width: 100%;
+    min-height: 75px;
+
+    display: flex;
+    align-items: center;
+
+    padding: 0 7%;
+    gap: 25px;
+
+    background: #111827;
+
+    border-bottom: 1px solid #202938;
+
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.navbar span {
+    font-size: 25px;
+    font-weight: 800;
+
+    color: #6c63ff;
+
+    margin-right: auto;
+}
+
+.navbar a {
+    color: #cbd5e1;
+
+    text-decoration: none;
+
+    font-size: 15px;
+
+    padding: 9px 13px;
+
+    border-radius: 8px;
+
+    transition: 0.3s ease;
+}
+
+.navbar a:hover {
+    color: #ffffff;
+
+    background: #1e293b;
+}
+
+
+/* ================================
+   SEARCH SECTION
+================================ */
+
+#search {
+    width: 100%;
+
+    padding: 70px 7%;
+}
+
+
+/* ================================
+   SEARCH HEADING
+================================ */
+
+.search-heading {
+    max-width: 1000px;
+
+    margin: 0 auto 30px;
+}
+
+.search-heading h2 {
+    font-size: 34px;
+
+    margin-bottom: 8px;
+}
+
+#search-query {
+    color: #94a3b8;
+
+    font-size: 16px;
+}
+
+
+/* ================================
+   RESULTS CONTAINER
+================================ */
+
+#results-container {
+    max-width: 1000px;
+
+    margin: auto;
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 20px;
+}
+
+.result-container {
+    width: 100%;
+
+    background: #111827;
+
+    border: 1px solid #263244;
+
+    border-radius: 20px;
+
+    padding: 20px;
+
+    transition: 0.3s ease;
+}
+
+.result-container:hover {
+    border-color: #6c63ff;
+
+    transform: translateY(-3px);
+
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
+}
+
+
+/* ================================
+   RESULT CARD
+================================ */
+
+.result-card {
+    display: grid;
+
+    grid-template-columns: 100px 1fr auto;
+
+    align-items: center;
+
+    gap: 20px;
+}
+
+
+/* ================================
+   APP IMAGE
+================================ */
+
+.result-card img {
+    width: 100px;
+    height: 100px;
+
+    object-fit: cover;
+
+    background: #202938;
+
+    border-radius: 18px;
+
+    grid-row: 1;
+}
+
+
+/* ================================
+   APP INFORMATION
+================================ */
+
+.app-info {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 5px;
+}
+
+.app-info p:first-child {
+    color: #ffffff;
+
+    font-size: 21px;
+
+    font-weight: bold;
+}
+
+.app-info p:nth-child(2) {
+    color: #94a3b8;
+
+    font-size: 15px;
+}
+
+.app-info p:nth-child(3) {
+    color: #cbd5e1;
+
+    font-size: 14px;
+}
+
+
+/* ================================
+   VIEW APP BUTTON
+================================ */
+
+.result-card a {
+    display: inline-block;
+
+    background: #6c63ff;
+
+    color: #ffffff;
+
+    text-decoration: none;
+
+    padding: 11px 20px;
+
+    border-radius: 9px;
+
+    font-weight: bold;
+
+    transition: 0.3s ease;
+}
+
+.result-card a:hover {
+    background: #584ff0;
+
+    transform: translateY(-2px);
+}
+
+
+/* ================================
+   NO RESULTS
+================================ */
+
+#no-result {
+    max-width: 700px;
+
+    margin: 40px auto 0;
+
+    padding: 60px 30px;
+
+    text-align: center;
+
+    background: #111827;
+
+    border: 1px solid #263244;
+
+    border-radius: 20px;
+}
+
+#no-result h2 {
+    font-size: 28px;
+
+    margin-bottom: 10px;
+}
+
+#no-result p {
+    color: #94a3b8;
+}
+
+
+/* ================================
+   TABLET
+================================ */
+
+@media (max-width: 800px) {
+
+    .navbar {
+        padding: 15px 5%;
+
+        flex-wrap: wrap;
+
+        justify-content: center;
+    }
+
+    .navbar span {
+        width: 100%;
+
+        text-align: center;
+
+        margin-right: 0;
+
+        margin-bottom: 5px;
+    }
+
+    .navbar a {
+        font-size: 13px;
+
+        padding: 7px 9px;
+    }
+
+    #search {
+        padding: 50px 5%;
+    }
+
+    .result-card {
+        grid-template-columns: 80px 1fr;
+    }
+
+    .result-card img {
+        width: 80px;
+        height: 80px;
+    }
+
+    .result-card a {
+        grid-column: 2;
+
+        width: fit-content;
+
+        margin-top: 10px;
+    }
+}
+
+
+/* ================================
+   MOBILE
+================================ */
+
+@media (max-width: 500px) {
+
+    .navbar {
+        gap: 6px;
+    }
+
+    .navbar a {
+        font-size: 11px;
+
+        padding: 6px 7px;
+    }
+
+    #search {
+        padding: 40px 5%;
+    }
+
+    .search-heading h2 {
+        font-size: 27px;
+    }
+
+    .result-container {
+        padding: 16px;
+    }
+
+    .result-card {
+        display: flex;
+
+        flex-direction: column;
+
+        align-items: flex-start;
+
+        gap: 12px;
+    }
+
+    .result-card img {
+        width: 85px;
+        height: 85px;
+    }
+
+    .result-card a {
+        margin-top: 3px;
+    }
+
+    #no-result {
+        padding: 45px 20px;
+    }
+}
+/* ========================================
+   SEARCH RESULT BUTTON
+======================================== */
+
+.view-app-button {
+    border: none;
+    outline: none;
+
+    background: linear-gradient(
+        135deg,
+        #00e5ff,
+        #7c4dff
+    );
+
+    color: #ffffff;
+
+    padding: 11px 20px;
+
+    border-radius: 10px;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        opacity 0.2s ease;
+
+    min-width: 100px;
+}
+
+/* Hover */
+
+.view-app-button:hover {
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 8px 20px rgba(0, 229, 255, 0.25),
+        0 4px 12px rgba(124, 77, 255, 0.25);
+
+    opacity: 0.95;
+}
+
+/* Click */
+
+.view-app-button:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+/* Keyboard focus */
+
+.view-app-button:focus-visible {
+    outline: 2px solid #ffffff;
+    outline-offset: 3px;
+}

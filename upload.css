@@ -1,0 +1,593 @@
+
+/* ========================================
+   TEKOHUB — UPLOAD PAGE
+======================================== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --bg: #080b11;
+    --surface: #0e131c;
+    --surface-light: #131a25;
+    --border: #202936;
+    --border-hover: #344155;
+
+    --blue: #4f8cff;
+    --blue-hover: #6a9dff;
+
+    --text: #f1f5fb;
+    --muted: #8995a7;
+    --placeholder: #5f6b7c;
+}
+
+body {
+    min-height: 100vh;
+    background: var(--bg);
+    color: var(--text);
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+
+/* ========================================
+   NAVBAR
+======================================== */
+
+header {
+    width: 100%;
+    min-height: 72px;
+
+    display: flex;
+    align-items: center;
+
+    padding: 0 6%;
+
+    background: #0b0f16;
+    border-bottom: 1px solid var(--border);
+
+    gap: 8px;
+}
+
+header span {
+    margin-right: 35px;
+
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+
+    color: var(--text);
+}
+
+header a {
+    position: relative;
+
+    padding: 26px 15px;
+
+    color: var(--muted);
+    text-decoration: none;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    transition: color 0.2s ease;
+}
+
+header a:hover {
+    color: var(--text);
+}
+
+header a#active {
+    color: var(--text);
+}
+
+header a#active::after {
+    content: "";
+
+    position: absolute;
+
+    left: 15px;
+    right: 15px;
+    bottom: 0;
+
+    height: 2px;
+
+    background: var(--blue);
+}
+
+
+/* ========================================
+   UPLOAD SECTION
+======================================== */
+
+#upload {
+    width: min(900px, 92%);
+
+    margin: 70px auto 100px;
+}
+
+
+/* ========================================
+   HEADING
+======================================== */
+
+.upload-heading {
+    margin-bottom: 40px;
+}
+
+.upload-heading h2 {
+    margin-bottom: 10px;
+
+    font-size: 36px;
+    font-weight: 800;
+    letter-spacing: -1px;
+}
+
+.upload-heading p {
+    color: var(--muted);
+
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+
+/* ========================================
+   FORM
+======================================== */
+
+#upload-form {
+    padding: 38px;
+
+    background: var(--surface);
+
+    border: 1px solid var(--border);
+    border-radius: 16px;
+
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+}
+
+
+/* ========================================
+   LABELS
+======================================== */
+
+#upload-form label {
+    display: block;
+
+    margin-bottom: 9px;
+
+    color: #dce3ed;
+
+    font-size: 13px;
+    font-weight: 700;
+}
+
+
+/* ========================================
+   TEXT INPUTS
+======================================== */
+
+#upload-form input[type="text"],
+#upload-form textarea {
+    width: 100%;
+
+    padding: 14px 15px;
+
+    margin-bottom: 22px;
+
+    background: var(--surface-light);
+
+    border: 1px solid var(--border);
+    border-radius: 9px;
+
+    outline: none;
+
+    color: var(--text);
+
+    font-family: inherit;
+    font-size: 14px;
+
+    transition:
+        border-color 0.2s ease,
+        background 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+#upload-form input[type="text"]::placeholder,
+#upload-form textarea::placeholder {
+    color: var(--placeholder);
+}
+
+#upload-form input[type="text"]:focus,
+#upload-form textarea:focus {
+    background: #151d29;
+
+    border-color: var(--blue);
+
+    box-shadow: 0 0 0 3px rgba(79, 140, 255, 0.08);
+}
+
+
+/* ========================================
+   APP INFORMATION
+======================================== */
+
+/*
+   The first four text inputs become
+   a clean information grid.
+*/
+
+#app-developer,
+#app-version,
+#app-category {
+    width: calc(33.333% - 10px) !important;
+    display: inline-block;
+    vertical-align: top;
+}
+
+#app-developer {
+    margin-right: 12px;
+}
+
+#app-version {
+    margin-right: 12px;
+}
+
+
+/* ========================================
+   DESCRIPTION
+======================================== */
+
+#app-description {
+    min-height: 150px;
+
+    resize: vertical;
+
+    line-height: 1.6;
+}
+
+
+/* ========================================
+   APK UPLOAD
+======================================== */
+
+#app-file {
+    width: 100%;
+
+    padding: 18px;
+
+    margin-bottom: 35px;
+
+    background: var(--surface-light);
+
+    border: 1px dashed #354154;
+    border-radius: 10px;
+
+    color: var(--muted);
+
+    cursor: pointer;
+
+    transition:
+        border-color 0.2s ease,
+        background 0.2s ease;
+}
+
+#app-file:hover {
+    background: #151d29;
+    border-color: var(--blue);
+}
+
+#app-file::file-selector-button {
+    margin-right: 15px;
+
+    padding: 9px 14px;
+
+    border: none;
+    border-radius: 7px;
+
+    background: #1b2637;
+
+    color: var(--text);
+
+    font-size: 13px;
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+
+/* ========================================
+   SCREENSHOTS
+======================================== */
+
+#screenshots {
+    margin-top: 5px;
+    padding-top: 30px;
+
+    border-top: 1px solid var(--border);
+
+    display: grid;
+
+    grid-template-columns: repeat(2, 1fr);
+
+    gap: 16px;
+}
+
+#screenshots h2 {
+    grid-column: 1 / -1;
+
+    margin-bottom: 5px;
+
+    font-size: 18px;
+    font-weight: 750;
+}
+
+
+/* ========================================
+   ADD SCREENSHOT
+======================================== */
+
+#screenshots > div:first-of-type {
+    position: relative;
+
+    min-height: 190px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #0b1018;
+
+    border: 1px dashed #354154;
+    border-radius: 12px;
+
+    color: #687589;
+
+    font-size: 38px;
+
+    cursor: pointer;
+
+    overflow: hidden;
+
+    transition:
+        border-color 0.25s ease,
+        background 0.25s ease,
+        transform 0.25s ease;
+}
+
+#screenshots > div:first-of-type:hover {
+    background: #101722;
+
+    border-color: var(--blue);
+
+    transform: translateY(-2px);
+}
+
+#screenshots > div:first-of-type input {
+    position: absolute;
+
+    inset: 0;
+
+    width: 100%;
+    height: 100%;
+
+    opacity: 0;
+
+    cursor: pointer;
+}
+
+
+/* ========================================
+   SCREENSHOT PREVIEW
+======================================== */
+
+.wherethescreenshotappears {
+    min-height: 190px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #0b1018;
+
+    border: 1px dashed #293444;
+    border-radius: 12px;
+
+    color: var(--placeholder);
+
+    overflow: hidden;
+}
+
+.wherethescreenshotappears:empty::before {
+    content: "Screenshot preview";
+
+    font-size: 13px;
+}
+
+
+/* ========================================
+   UPLOAD BUTTON
+======================================== */
+
+#upload-form > button {
+    width: 100%;
+
+    margin-top: 32px;
+
+    padding: 15px 20px;
+
+    border: none;
+    border-radius: 9px;
+
+    background: var(--blue);
+
+    color: white;
+
+    font-size: 14px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+#upload-form > button:hover {
+    background: var(--blue-hover);
+
+    transform: translateY(-1px);
+
+    box-shadow: 0 8px 25px rgba(79, 140, 255, 0.18);
+}
+
+#upload-form > button:active {
+    transform: translateY(0);
+}
+
+
+/* ========================================
+   MOBILE
+======================================== */
+
+@media (max-width: 700px) {
+
+    header {
+        padding: 12px 5%;
+
+        flex-wrap: wrap;
+
+        justify-content: center;
+
+        gap: 2px;
+    }
+
+    header span {
+        width: 100%;
+
+        margin-right: 0;
+
+        margin-bottom: 4px;
+
+        text-align: center;
+    }
+
+    header a {
+        padding: 12px 9px;
+    }
+
+    header a#active::after {
+        left: 9px;
+        right: 9px;
+    }
+
+
+    #upload {
+        width: 94%;
+
+        margin-top: 45px;
+    }
+
+    .upload-heading h2 {
+        font-size: 30px;
+    }
+
+    #upload-form {
+        padding: 24px;
+    }
+
+
+    #app-developer,
+    #app-version,
+    #app-category {
+        width: 100% !important;
+
+        display: block;
+
+        margin-right: 0;
+    }
+
+
+    #screenshots {
+        grid-template-columns: 1fr;
+    }
+
+    #screenshots h2 {
+        grid-column: auto;
+    }
+
+}
+
+
+@media (max-width: 450px) {
+
+    header a {
+        font-size: 12px;
+        padding: 10px 7px;
+    }
+
+    #upload-form {
+        padding: 18px;
+    }
+
+    .upload-heading h2 {
+        font-size: 27px;
+    }
+
+}
+
+#logout{
+    background:#6C63FF ;
+
+    border-radius: 5px;
+
+    padding: 5px 10px;
+
+    color:#F8FAFC ;
+
+    transition:0.3s ;
+}
+/* ================================
+   APP LOGO
+================================ */
+
+label[for="app-logo"] {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+#app-logo {
+    width: 100%;
+    padding: 14px;
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    background: var(--card);
+    color: var(--text);
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+#app-logo:hover {
+    border-color: var(--cyan);
+    background: var(--card-light);
+}
+
+#app-logo::file-selector-button {
+    padding: 10px 16px;
+    margin-right: 12px;
+    border: none;
+    border-radius: 8px;
+    background: var(--cyan);
+    color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+#app-logo::file-selector-button:hover {
+    opacity: 0.85;
+}

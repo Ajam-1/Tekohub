@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>uPLOAD | TekoHub</title>
+
+    <link rel="stylesheet" href="upload.css"> 
+    
+    </head>
+    <body>
+
+        <header>
+
+            <span>Tekohub</span>
+
+            <a href="teko.html">Home</a>
+            <a href="exp.html">Explore</a>
+            <a href="cat.html">Categories</a>
+            <a href="trending.html">Trending</a>
+            <a href="upload.html" id="active">Upload</a>
+            <a href="login.html">Login</a>
+            <a href="profile.html">Profile</a>
+
+            <a href="profile.html" id="username-display">Guest</a>
+<button id="logout">Logout</button>
+            
+
+        </header>
+
+        <section id="upload">
+
+            <div class="upload-heading">
+
+                <h2>Upload Your App</h2>
+
+                <p>Share your app with the world and reach a wider audience.</p>
+
+            </div>
+
+            <form id="upload-form" action="#" method="POST" enctype="multipart/form-data">
+
+                <label for="app-name">App Name:</label>
+                <input type="text" id="app-name" name="app-name" required>
+                <input type="text" id="app-developer" name="app-developer" placeholder="Developer Name" required>
+                <input type="text" id="app-version" name="app-version" placeholder="Version (e.g., 1.0.0)" required>
+                <input type="text" id="app-category" name="app-category" placeholder="Category (e.g., Productivity)" required>  
+
+                <label for="app-description">App Description:</label>
+                <textarea id="app-description" name="app-description" required></textarea>
+
+                <label for="app-logo">App Logo:</label>
+<input
+    type="file"
+    id="app-logo"
+    name="app-logo"
+    accept="image/png, image/jpeg, image/webp"
+    required
+>
+
+                <label for="app-file">Upload APK File:</label>
+                <input type="file" id="app-file" name="app-file" accept=".apk" required>
+                <div id="screenshots">
+                    <h2>Screenshots</h2>
+                    <div>+<input type="file" name="screenshots[]" accept="image/*"multiple></div>
+                    <div class="wherethescreenshotappears"></div>
+                </div>
+
+                <button type="submit">Upload</button>
+
+            </form>
+
+</section>
+
+<script src="upload.js"></script>
+<script src="auth.js"></script>
+            
+    </body>
+</html>

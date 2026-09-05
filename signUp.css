@@ -1,0 +1,350 @@
+
+/* ========================================
+   GLOBAL
+======================================== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --bg: #080b11;
+    --nav: #0b0f16;
+    --surface: #101620;
+    --surface-hover: #151d29;
+    --border: #202936;
+    --border-hover: #354154;
+
+    --blue: #4f8cff;
+    --blue-hover: #669cff;
+
+    --text: #f1f5fb;
+    --muted: #8995a7;
+    --placeholder: #5f6b7c;
+}
+
+body {
+    min-height: 100vh;
+    background: var(--bg);
+    color: var(--text);
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+
+/* ========================================
+   NAVBAR
+======================================== */
+
+header {
+    min-height: 72px;
+    padding: 0 6%;
+
+    display: flex;
+    align-items: center;
+    gap: 32px;
+
+    background: var(--nav);
+    border-bottom: 1px solid var(--border);
+}
+
+header span {
+    margin-right: auto;
+
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}
+
+header a {
+    position: relative;
+
+    color: var(--muted);
+    text-decoration: none;
+
+    font-size: 14px;
+    font-weight: 500;
+
+    transition: color 0.2s ease;
+}
+
+header a:hover {
+    color: var(--text);
+}
+
+header a#active {
+    color: var(--text);
+}
+
+header a#active::after {
+    content: "";
+
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -26px;
+
+    height: 2px;
+
+    background: var(--blue);
+}
+
+
+/* ========================================
+   SIGN UP SECTION
+======================================== */
+
+#sign-up {
+    width: min(100% - 40px, 480px);
+    margin: 75px auto 100px;
+}
+
+
+/* ========================================
+   HEADING
+======================================== */
+
+.sign-up-heading {
+    text-align: center;
+    margin-bottom: 32px;
+}
+
+.sign-up-heading h2 {
+    font-size: 34px;
+    line-height: 1.2;
+    margin-bottom: 12px;
+    letter-spacing: -0.8px;
+}
+
+.sign-up-heading p {
+    color: var(--muted);
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+
+/* ========================================
+   FORM CARD
+======================================== */
+
+#sign-up-form {
+    padding: 34px;
+
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+}
+
+
+/* ========================================
+   LABELS
+======================================== */
+
+#sign-up-form label {
+    display: block;
+
+    margin-bottom: 8px;
+
+    color: var(--text);
+
+    font-size: 13px;
+    font-weight: 600;
+}
+
+
+/* ========================================
+   INPUTS
+======================================== */
+
+#sign-up-form input {
+    width: 100%;
+    height: 48px;
+
+    margin-bottom: 20px;
+    padding: 0 14px;
+
+    background: #0b1018;
+
+    color: var(--text);
+
+    border: 1px solid var(--border);
+    border-radius: 9px;
+
+    outline: none;
+
+    font-size: 14px;
+
+    transition:
+        border-color 0.2s ease,
+        background 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+#sign-up-form input::placeholder {
+    color: var(--placeholder);
+}
+
+#sign-up-form input:hover {
+    border-color: var(--border-hover);
+}
+
+#sign-up-form input:focus {
+    border-color: var(--blue);
+    background: #0d131d;
+
+    box-shadow: 0 0 0 3px rgba(79, 140, 255, 0.1);
+}
+
+
+/* ========================================
+   MAIN SIGN UP BUTTON
+======================================== */
+
+#sign-up-form button[type="submit"] {
+    width: 100%;
+    height: 48px;
+
+    margin-top: 4px;
+    margin-bottom: 12px;
+
+    border: none;
+    border-radius: 9px;
+
+    background: var(--blue);
+    color: white;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease;
+}
+
+#sign-up-form button[type="submit"]:hover {
+    background: var(--blue-hover);
+    transform: translateY(-1px);
+}
+
+#sign-up-form button[type="submit"]:active {
+    transform: translateY(0);
+}
+
+
+/* ========================================
+   SOCIAL / ALTERNATIVE BUTTONS
+======================================== */
+
+#google-signup,
+#email-signup {
+    width: 100%;
+    height: 46px;
+
+    margin-top: 10px;
+
+    background: transparent;
+    color: var(--text);
+
+    border: 1px solid var(--border);
+    border-radius: 9px;
+
+    font-size: 14px;
+    font-weight: 500;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease;
+}
+
+#google-signup:hover,
+#email-signup:hover {
+    background: var(--surface-hover);
+    border-color: var(--border-hover);
+}
+
+
+/* ========================================
+   SEPARATOR
+======================================== */
+
+#sign-up-form::after {
+    content: "OR";
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+
+    margin: 22px 0 2px;
+
+    color: var(--muted);
+
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+
+
+/* ========================================
+   LOGIN LINK
+======================================== */
+
+#sign-up::after {
+    content: "Already have an account? Login";
+
+    display: block;
+
+    margin-top: 22px;
+
+    text-align: center;
+
+    color: var(--muted);
+
+    font-size: 14px;
+}
+
+
+/* ========================================
+   MOBILE
+======================================== */
+
+@media (max-width: 700px) {
+
+    header {
+        padding: 18px 20px;
+
+        flex-wrap: wrap;
+        gap: 18px;
+    }
+
+    header span {
+        width: 100%;
+        margin-right: 0;
+    }
+
+    header a#active::after {
+        bottom: -8px;
+    }
+
+    #sign-up {
+        width: min(100% - 28px, 480px);
+        margin-top: 45px;
+    }
+
+    .sign-up-heading h2 {
+        font-size: 28px;
+    }
+
+    #sign-up-form {
+        padding: 24px;
+    }
+}
+

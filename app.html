@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+
+<meta charset = UTF-8>
+<meta name="viewport" content="width=device-width initial-scale=1.0">
+<title>App</title>
+<link rel="stylesheet" href="app.css">
+
+    </head>
+    <body>
+
+<header>
+     <a href="teko.html">Home</a>
+    <a href="exp.html">Explore</a>
+    <a href="cat.html">Categories</a>
+    <a href="trending.html">Trending</a>
+    <a href="profile.html">Profile</a>
+    <a href="upload.html">Upload</a>
+    <a href="login.html">Login</a>
+    <a href="profile.html" id="username-display">Guest</a>
+
+<button id="logout">Logout</button>
+</header>
+
+<section id="app">
+
+<div class="icon-image">
+    
+    <img src="#"/>
+
+</div>
+
+<div class="icon-info">
+
+<h2 id="app-name">APP A</h2>
+<p id="rating">⭐ 4.5</p>
+<P id="downloads"> 120 downloads </P>
+<P id="dev-name">By Developer Name</P>
+<p id="version">Version: 1.0.0</p> 
+<p id="size">Size: 24 MB</p>
+ <p id="phone-type">Android: 8.0+</p>
+  <p id="updates">Last Updated: August 2026</p> 
+  <a href="#" id="download-app">Download APK</a> 
+</div>
+</section>
+
+<section id="abt">
+
+    <div class="abt-words">
+
+<h2>About App</h2>
+
+<p id="des">A useful description</p>
+
+<p>Features</p>
+<ul>
+    <li>Feature 1</li>
+    <li>Feature 2</li>
+    <li>Feature 3</li>
+
+</ul>
+
+    </div>
+
+    <div class="abt-images">
+
+<h2>Screenshots</h2>
+
+<img src="#"/>
+
+<img src="#"/>
+
+<img src="#"/>
+
+    </div>
+
+    <div id="large-img">
+
+        <span id="prev-btn">&#10094;</span>
+
+        <img src="#"/>
+
+        <span id="close-btn">X</span>
+
+        <span id="next-btn">&#10095;</span>
+
+
+    </div>
+
+    <div id="reviews">
+
+<div class="rating-summary">
+
+    <div class="average-rating">
+
+        <h2 id="average-rating">4.6</h2>
+
+        <div class="average-stars">
+            ★★★★★
+        </div>
+
+        <p id="review-count">127 reviews</p>
+
+    </div>
+
+
+    <div class="rating-breakdown">
+
+        <div class="rating-row">
+            <span>5</span>
+            <span>★</span>
+            <div class="rating-bar">
+                <div class="rating-fill" style="width: 70%;"></div>
+            </div>
+        </div>
+
+        <div class="rating-row">
+            <span>4</span>
+            <span>★</span>
+            <div class="rating-bar">
+                <div class="rating-fill" style="width: 20%;"></div>
+            </div>
+        </div>
+
+        <div class="rating-row">
+            <span>3</span>
+            <span>★</span>
+            <div class="rating-bar">
+                <div class="rating-fill" style="width: 7%;"></div>
+            </div>
+        </div>
+
+        <div class="rating-row">
+            <span>2</span>
+            <span>★</span>
+            <div class="rating-bar">
+                <div class="rating-fill" style="width: 2%;"></div>
+            </div>
+        </div>
+
+        <div class="rating-row">
+            <span>1</span>
+            <span>★</span>
+            <div class="rating-bar">
+                <div class="rating-fill" style="width: 1%;"></div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+
+   <h2>Rate this app</h2>
+
+    <div id="stars">
+        <span data-rating="1">☆</span>
+        <span data-rating="2">☆</span>
+        <span data-rating="3">☆</span>
+        <span data-rating="4">☆</span>
+        <span data-rating="5">☆</span>
+    </div>
+
+    <div class="textbox-area">
+        <h2>Write your review</h2>
+
+<textarea
+id="review-text"
+placeholder="write your review">
+</textarea>
+
+<a href="#" id="sumbit-review">Submit</a>
+
+    </div>
+
+    <p id="rating-message">Select a rating</p>
+
+    </div>
+
+<!-- Submitted reviews appear here --> 
+ <div id="reviews-list">
+     <!-- Example review --> 
+      <div class="review-card">
+         <div class="review-top"> 
+            <div class="review-user">
+                 <div class="user-avatar">A</div> 
+                 <div>
+                     <h3>Alex</h3>
+                      <p class="review-date">2 days ago</p>
+                     </div> 
+                    </div> 
+                    <div class="review-rating"> ★★★★★ </div>
+                 </div> <p class="review-text"> 
+                    This app is really useful. The design is clean and everything works smoothly. </p>
+                     <div class="review-bottom"> 
+                        <span>Helpful?</span>
+                         <button class="helpful-btn">
+                             👍 Helpful </button>
+                              <span class="helpful-count"> 12 </span>
+                             </div>
+                             </div>
+                             </div>
+ </div>
+    
+</section>
+
+
+
+
+
+<script src="app.js"></script>
+<script src="auth.js"></script>
+
+    </body>
+
+</html>

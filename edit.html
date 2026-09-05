@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Edit App | TekoHub</title>
+
+    <link rel="stylesheet" href="edit.css">
+
+</head>
+
+<body>
+
+<header id="navlink">
+
+    <span>Tekohub</span>
+
+    <a href="teko.html">Home</a>
+    <a href="exp.html">Explore</a>
+    <a href="cat.html">Categories</a>
+    <a href="trending.html">Trending</a>
+    <a href="upload.html">Upload</a>
+    <a href="profile.html">Profile</a>
+
+</header>
+
+
+<main>
+
+    <section class="edit-container">
+
+        <h1>Edit App</h1>
+
+        <p class="subtitle">
+            Update your app information
+        </p>
+
+
+        <form id="edit-form">
+
+            <label for="app-name">
+                App Name
+            </label>
+
+            <input
+                type="text"
+                id="app-name"
+                name="app-name"
+                required
+            >
+
+
+            <label for="app-developer">
+                Developer Name
+            </label>
+
+            <input
+                type="text"
+                id="app-developer"
+                name="app-developer"
+                required
+            >
+
+
+            <label for="app-version">
+                Version
+            </label>
+
+            <input
+                type="text"
+                id="app-version"
+                name="app-version"
+                required
+            >
+
+
+            <label for="app-category">
+                Category
+            </label>
+
+            <select
+                id="app-category"
+                name="app-category"
+                required
+            >
+
+                <option value="">
+                    Select Category
+                </option>
+
+                <option value="Games">
+                    Games
+                </option>
+
+                <option value="Education">
+                    Education
+                </option>
+
+                <option value="Productivity">
+                    Productivity
+                </option>
+
+                <option value="Tools">
+                    Tools
+                </option>
+
+                <option value="Entertainment">
+                    Entertainment
+                </option>
+
+                <option value="Social">
+                    Social
+                </option>
+
+                <option value="Other">
+                    Other
+                </option>
+
+            </select>
+
+
+            <label for="app-description">
+                Description
+            </label>
+
+            <textarea
+                id="app-description"
+                name="app-description"
+                rows="6"
+                required
+            ></textarea>
+
+
+            <label for="app-logo">
+                Replace App Logo
+            </label>
+
+            <input
+                type="file"
+                id="app-logo"
+                name="app-logo"
+                accept="image/png, image/jpeg, image/webp"
+            >
+
+            <p class="hint">
+                Leave empty to keep the current logo.
+            </p>
+
+
+            <label for="app-file">
+                Replace APK
+            </label>
+
+            <input
+                type="file"
+                id="app-file"
+                name="app-file"
+                accept=".apk"
+            >
+
+            <p class="hint">
+                Leave empty to keep the current APK.
+            </p>
+
+
+            <label for="screenshots">
+                Replace Screenshots
+            </label>
+
+            <input
+                type="file"
+                id="screenshots"
+                name="screenshots[]"
+                accept="image/png, image/jpeg, image/webp"
+                multiple
+            >
+
+            <p class="hint">
+                Leave empty to keep the current screenshots.
+            </p>
+
+
+            <div class="form-actions">
+
+                <a
+                    href="profile.html"
+                    class="cancel-button"
+                >
+                    Cancel
+                </a>
+
+                <button
+                    type="submit"
+                    id="save-button"
+                >
+                    Save Changes
+                </button>
+
+            </div>
+
+
+            <p
+                id="message"
+                class="message"
+            ></p>
+
+        </form>
+
+    </section>
+
+</main>
+
+
+<script src="edit.js"></script>
+
+</body>
+
+</html>

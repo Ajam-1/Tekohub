@@ -1,0 +1,336 @@
+/* ================================
+   GLOBAL
+================================ */
+
+:root {
+    --bg: #070b18;
+    --bg-light: #0d1326;
+    --card: #111a33;
+    --card-light: #172242;
+    --cyan: #00d9ff;
+    --purple: #7c4dff;
+    --pink: #ff4ecd;
+    --text: #f5f7ff;
+    --muted: #8993aa;
+    --border: #243152;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+}
+
+
+/* ================================
+   NAVBAR
+================================ */
+
+#navlink {
+    width: 100%;
+    min-height: 70px;
+
+    display: flex;
+    align-items: center;
+    gap: 28px;
+
+    padding: 0 6%;
+
+    background: var(--bg-light);
+    border-bottom: 1px solid var(--border);
+}
+
+#navlink span {
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--cyan);
+    margin-right: auto;
+}
+
+#navlink a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 15px;
+
+    transition: 0.2s ease;
+}
+
+#navlink a:hover {
+    color: var(--cyan);
+}
+
+#navlink a:active {
+    transform: scale(0.95);
+}
+
+
+/* ================================
+   MAIN
+================================ */
+
+main {
+    width: 100%;
+    padding: 50px 20px 80px;
+}
+
+
+/* ================================
+   EDIT CONTAINER
+================================ */
+
+.edit-container {
+    width: 100%;
+    max-width: 700px;
+    margin: 0 auto;
+
+    background: var(--card);
+
+    border: 1px solid var(--border);
+    border-radius: 16px;
+
+    padding: 35px;
+
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+}
+
+.edit-container h1 {
+    font-size: 32px;
+    margin-bottom: 8px;
+}
+
+.subtitle {
+    color: var(--muted);
+    margin-bottom: 32px;
+}
+
+
+/* ================================
+   FORM
+================================ */
+
+#edit-form {
+    display: flex;
+    flex-direction: column;
+}
+
+#edit-form label {
+    font-size: 14px;
+    font-weight: bold;
+
+    margin-bottom: 8px;
+
+    color: var(--text);
+}
+
+#edit-form input,
+#edit-form select,
+#edit-form textarea {
+    width: 100%;
+
+    background: var(--bg-light);
+    color: var(--text);
+
+    border: 1px solid var(--border);
+    border-radius: 9px;
+
+    padding: 13px 14px;
+
+    font-size: 15px;
+    font-family: inherit;
+
+    outline: none;
+
+    margin-bottom: 22px;
+
+    transition: 0.2s ease;
+}
+
+#edit-form input:focus,
+#edit-form select:focus,
+#edit-form textarea:focus {
+    border-color: var(--cyan);
+
+    box-shadow:
+        0 0 0 2px rgba(0, 217, 255, 0.08);
+}
+
+#edit-form textarea {
+    resize: vertical;
+    min-height: 140px;
+}
+
+#edit-form select {
+    cursor: pointer;
+}
+
+
+/* ================================
+   FILE INPUTS
+================================ */
+
+#edit-form input[type="file"] {
+    cursor: pointer;
+    padding: 10px;
+}
+
+#edit-form input[type="file"]::file-selector-button {
+    background: var(--card-light);
+    color: var(--text);
+
+    border: 1px solid var(--border);
+    border-radius: 7px;
+
+    padding: 8px 12px;
+
+    margin-right: 10px;
+
+    cursor: pointer;
+}
+
+#edit-form input[type="file"]::file-selector-button:hover {
+    border-color: var(--cyan);
+}
+
+
+/* ================================
+   HINT
+================================ */
+
+.hint {
+    color: var(--muted);
+    font-size: 13px;
+
+    margin-top: -15px;
+    margin-bottom: 22px;
+}
+
+
+/* ================================
+   BUTTONS
+================================ */
+
+.form-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+
+    gap: 12px;
+
+    margin-top: 10px;
+}
+
+.cancel-button,
+#save-button {
+    border-radius: 8px;
+
+    padding: 12px 20px;
+
+    font-size: 15px;
+    font-weight: bold;
+
+    text-decoration: none;
+
+    cursor: pointer;
+
+    transition: 0.2s ease;
+}
+
+.cancel-button {
+    background: var(--card-light);
+    color: var(--text);
+
+    border: 1px solid var(--border);
+}
+
+.cancel-button:hover {
+    border-color: var(--muted);
+}
+
+#save-button {
+    background: var(--cyan);
+    color: #031018;
+
+    border: none;
+}
+
+#save-button:hover {
+    transform: translateY(-1px);
+
+    box-shadow:
+        0 8px 20px rgba(0, 217, 255, 0.2);
+}
+
+#save-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+
+/* ================================
+   MESSAGE
+================================ */
+
+.message {
+    text-align: center;
+
+    margin-top: 20px;
+
+    font-size: 14px;
+
+    min-height: 20px;
+}
+
+
+/* ================================
+   MOBILE
+================================ */
+
+@media (max-width: 800px) {
+
+    #navlink {
+        gap: 15px;
+        padding: 15px 20px;
+
+        flex-wrap: wrap;
+    }
+
+    #navlink span {
+        width: 100%;
+        margin-right: 0;
+    }
+
+    #navlink a {
+        font-size: 13px;
+    }
+
+    main {
+        padding: 30px 15px 60px;
+    }
+
+    .edit-container {
+        padding: 25px 20px;
+    }
+
+    .edit-container h1 {
+        font-size: 27px;
+    }
+
+    .form-actions {
+        flex-direction: column-reverse;
+        width: 100%;
+    }
+
+    .cancel-button,
+    #save-button {
+        width: 100%;
+        text-align: center;
+    }
+}

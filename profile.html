@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Profile | TekoHub</title>
+
+    <link rel="stylesheet" href="profile.css">
+
+</head>
+
+
+<body>
+
+<header id="navlink">
+
+    <span>Tekohub</span>
+
+    <a href="teko.html">Home</a>
+
+    <a href="exp.html">Explore</a>
+
+    <a href="cat.html">Categories</a>
+
+    <a href="trending.html">Trending</a>
+
+    <a href="upload.html">Upload</a>
+
+    <a
+        href="profile.html"
+        id="active"
+    >
+        Profile
+    </a>
+
+    <a
+        href="profile.html"
+        id="username-display"
+    >
+        Guest
+    </a>
+
+    <button id="logout">
+        Logout
+    </button>
+
+</header>
+
+
+
+<main>
+
+
+    <!-- PROFILE -->
+
+    <section class="profile">
+
+        <div
+            class="profile-avatar"
+            id="profile-avatar"
+        >
+            U
+        </div>
+
+        <div class="profile-info">
+
+            <h1 id="profile-username">
+                Loading...
+            </h1>
+
+            <p id="profile-date">
+                Member since...
+            </p>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- STATS -->
+
+    <section class="stats">
+
+        <div class="stat">
+
+            <h2 id="app-count">
+                0
+            </h2>
+
+            <p>
+                Apps Uploaded
+            </p>
+
+        </div>
+
+
+        <div class="stat">
+
+            <h2 id="download-count">
+                0
+            </h2>
+
+            <p>
+                Downloads
+            </p>
+
+        </div>
+
+
+        <div class="stat">
+
+            <h2 id="review-count">
+                0
+            </h2>
+
+            <p>
+                Reviews
+            </p>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- MY APPS -->
+
+    <section class="profile-section">
+
+        <div class="section-title">
+
+            <h2>
+                My Apps
+            </h2>
+
+            <a
+                href="upload.html"
+                class="upload-link"
+            >
+                + Upload App
+            </a>
+
+        </div>
+
+
+        <div
+            id="apps-list"
+            class="apps-list"
+        >
+
+            <p class="empty">
+                Loading apps...
+            </p>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- MY REVIEWS -->
+
+    <section class="profile-section">
+
+        <div class="section-title">
+
+            <h2>
+                My Reviews
+            </h2>
+
+        </div>
+
+
+        <div
+            id="reviews-list"
+            class="reviews-list"
+        >
+
+            <p class="empty">
+                Loading reviews...
+            </p>
+
+        </div>
+
+    </section>
+
+</main>
+
+
+
+<!-- DELETE CONFIRMATION -->
+
+<div
+    id="delete-modal"
+    class="delete-modal"
+>
+
+    <div class="delete-box">
+
+        <h2>
+            Delete App?
+        </h2>
+
+        <p>
+            Are you sure you want to delete
+            <strong id="delete-app-name">
+                this app
+            </strong>?
+        </p>
+
+        <div class="delete-actions">
+
+            <button id="cancel-delete">
+                Cancel
+            </button>
+
+            <button id="confirm-delete">
+                Delete
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<script src="profile.js"></script>
+<script src="auth.js"></script>
+
+</body>
+
+</html>

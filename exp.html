@@ -1,0 +1,99 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explore | TekoHub</title>
+    <link rel="stylesheet" href="exp.css">
+</head>
+
+<body>
+
+<header id="navlink">
+    <span>Tekohub</span>
+
+    <a href="teko.html">Home</a>
+    <a href="explore.html" id="active">Explore</a>
+    <a href="cat.html">Categories</a>
+    <a href="trending.html">Trending</a>
+    <a href="profile.html">Profile</a>
+    <a href="upload.html">Upload</a>
+    <a href="login.html">Login</a>
+    <a href="profile.html" id="username-display">Guest</a>
+
+<button id="logout">Logout</button>
+</header>
+
+<main>
+
+    <section class="hero">
+        <h1>Explore Apps</h1>
+        <p>Discover useful apps built by developers around the world.</p>
+    </section>
+
+    <section class="filters">
+
+        <button class="filter active" data-filter="all">All</button>
+        <button class="filter" data-filter="productivity">Productivity</button>
+        <button class="filter" data-filter="education">Education</button>
+        <button class="filter" data-filter="business">Business</button>
+        <button class="filter" data-filter="games">Games</button>
+        <button class="filter" data-filter="development">Development</button>
+
+    </section>
+
+    <section class="apps" id="apps">
+
+        <div class="app-card" data-category="productivity">
+            <div class="app-icon">A</div>
+            <h2>APP A</h2>
+            <p>Productivity</p>
+            <span>★ 4.5</span>
+            <a href="#" class="btn">View App</a>
+        </div>
+
+        <div class="app-card" data-category="education">
+            <div class="app-icon">B</div>
+            <h2>APP B</h2>
+            <p>Education</p>
+            <span>★ 4.7</span>
+            <a href="#" class="btn">View App</a >
+        </div>
+
+        <div class="app-card" data-category="business">
+            <div class="app-icon">C</div>
+            <h2>APP C</h2>
+            <p>Business</p>
+            <span>★ 4.3</span>
+            <a href="#" class="btn">View App</a>
+        </div>
+
+        <div class="app-card" data-category="games">
+            <div class="app-icon">D</div>
+            <h2>APP D</h2>
+            <p>Games</p>
+            <span>★ 4.8</span>
+            <a href="#" class="btn">View App</a>
+        </div>
+
+        <div class="app-card" data-category="development">
+            <div class="app-icon">E</div>
+            <h2>APP E</h2>
+            <p>Development</p>
+            <span>★ 4.6</span>
+            <a href="#" class="btn">View App</a>
+        </div>
+
+    </section>
+
+    <p id="no-results">No apps found in this category.</p>
+
+</main>
+
+<script src="exp.js"></script>
+
+</body>
+</html>
+
