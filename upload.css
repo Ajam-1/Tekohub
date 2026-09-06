@@ -1,43 +1,46 @@
-/* =========================================
+
+/* =========================================================
    TEKOHUB — UPLOAD PAGE
-   Premium Developer Dashboard
-========================================= */
+   Matches the current upload.html exactly
+========================================================= */
 
 :root {
-    --bg: #070a10;
-    --bg-soft: #0b1018;
-    --surface: #0f151f;
-    --surface-2: #131b27;
-    --surface-3: #182232;
+    --bg: #07090d;
+    --bg-soft: #0c0f15;
 
-    --border: #202b3a;
-    --border-light: #2c3a4d;
+    --surface: #11151d;
+    --surface-2: #171c25;
+    --surface-3: #1d2430;
 
-    --primary: #4f8cff;
-    --primary-light: #78a9ff;
-    --primary-dark: #316fe0;
+    --border: #252d3a;
+    --border-light: #303949;
 
-    --purple: #8b5cf6;
-    --pink: #ec4899;
+    --primary: #7c5cff;
+    --primary-light: #9a82ff;
+    --primary-dark: #6244e8;
 
-    --text: #f5f7fb;
-    --text-soft: #c7d0dd;
-    --muted: #8290a3;
-    --placeholder: #596678;
+    --purple: #9b6cff;
+    --pink: #ff5ca8;
 
-    --success: #35d49a;
-    --danger: #ff5f6d;
+    --text: #f4f6fb;
+    --text-soft: #c5cad5;
+    --muted: #858d9c;
+    --placeholder: #5d6675;
 
-    --radius: 16px;
-    --radius-small: 10px;
+    --success: #4ade80;
+    --danger: #ff5f5f;
 
-    --shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+    --radius-sm: 8px;
+    --radius: 14px;
+    --radius-lg: 20px;
+
+    --shadow: 0 15px 45px rgba(0, 0, 0, 0.35);
 }
 
 
-/* =========================================
+/* =========================================================
    RESET
-========================================= */
+========================================================= */
 
 * {
     margin: 0;
@@ -51,99 +54,102 @@ html {
 
 body {
     min-height: 100vh;
-    background:
-        radial-gradient(
-            circle at 15% 0%,
-            rgba(79, 140, 255, 0.10),
-            transparent 30%
-        ),
-        radial-gradient(
-            circle at 85% 10%,
-            rgba(139, 92, 246, 0.08),
-            transparent 30%
-        ),
-        var(--bg);
-
-    color: var(--text);
 
     font-family:
         Inter,
+        system-ui,
         -apple-system,
         BlinkMacSystemFont,
         "Segoe UI",
         sans-serif;
 
-    line-height: 1.5;
+    color: var(--text);
+
+    background:
+        radial-gradient(
+            circle at 15% 10%,
+            rgba(124, 92, 255, 0.12),
+            transparent 30%
+        ),
+        radial-gradient(
+            circle at 85% 25%,
+            rgba(255, 92, 168, 0.07),
+            transparent 28%
+        ),
+        var(--bg);
+
+    line-height: 1.6;
 }
 
 
-/* =========================================
+/* =========================================================
    HEADER
-========================================= */
+========================================================= */
 
 header {
-    height: 76px;
+    width: 100%;
 
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    min-height: 74px;
 
     padding: 0 6%;
 
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    display: flex;
+    align-items: center;
 
-    background: rgba(7, 10, 16, 0.82);
+    gap: 35px;
+
+    border-bottom: 1px solid var(--border);
+
+    background: rgba(7, 9, 13, 0.88);
 
     backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
 
     position: sticky;
     top: 0;
-    z-index: 1000;
+
+    z-index: 100;
 }
 
 
-/* LOGO */
+/* =========================================================
+   LOGO
+========================================================= */
 
 .logo {
-    color: var(--text);
-
     font-size: 23px;
+
     font-weight: 800;
 
     letter-spacing: -0.7px;
 
-    text-decoration: none;
+    white-space: nowrap;
 
-    position: relative;
-}
+    background:
+        linear-gradient(
+            135deg,
+            var(--primary-light),
+            var(--pink)
+        );
 
-.logo::after {
-    content: "";
+    -webkit-background-clip: text;
+    background-clip: text;
 
-    position: absolute;
-
-    width: 6px;
-    height: 6px;
-
-    background: var(--primary);
-
-    border-radius: 50%;
-
-    right: -10px;
-    bottom: 5px;
-
-    box-shadow:
-        0 0 12px rgba(79, 140, 255, 0.9);
+    color: transparent;
 }
 
 
-/* NAVIGATION */
+/* =========================================================
+   NAVIGATION
+========================================================= */
 
 nav {
     display: flex;
+
     align-items: center;
-    gap: 30px;
+
+    gap: 24px;
+
+    flex: 1;
 }
 
 nav a {
@@ -154,7 +160,10 @@ nav a {
     text-decoration: none;
 
     font-size: 14px;
-    font-weight: 500;
+
+    font-weight: 600;
+
+    padding: 27px 0;
 
     transition:
         color 0.25s ease,
@@ -168,13 +177,13 @@ nav a:hover {
 }
 
 
-/* ACTIVE NAV */
+/* Active link */
 
-nav a.active {
+nav a#active {
     color: var(--text);
 }
 
-nav a.active::after {
+nav a#active::after {
     content: "";
 
     position: absolute;
@@ -182,326 +191,319 @@ nav a.active::after {
     left: 0;
     right: 0;
 
-    bottom: -27px;
+    bottom: 18px;
 
     height: 2px;
 
-    background: var(--primary);
-
     border-radius: 10px;
 
+    background:
+        linear-gradient(
+            90deg,
+            var(--primary),
+            var(--pink)
+        );
+
     box-shadow:
-        0 0 12px rgba(79, 140, 255, 0.8);
+        0 0 12px rgba(124, 92, 255, 0.6);
 }
 
 
-/* ACCOUNT */
+/* =========================================================
+   ACCOUNT
+========================================================= */
 
 .account {
     display: flex;
+
     align-items: center;
-    gap: 14px;
-}
 
-.account span {
-    color: var(--muted);
+    gap: 12px;
 
-    font-size: 13px;
+    white-space: nowrap;
 }
 
 .account a {
-    color: var(--text);
+    color: var(--text-soft);
 
     text-decoration: none;
 
     font-size: 14px;
+
     font-weight: 600;
 
-    padding: 9px 14px;
-
-    border: 1px solid var(--border);
-
-    border-radius: 9px;
-
-    background: rgba(255, 255, 255, 0.02);
-
-    transition: 0.25s ease;
+    transition: color 0.25s ease;
 }
 
 .account a:hover {
-    border-color: var(--primary);
+    color: var(--primary-light);
+}
 
-    background: rgba(79, 140, 255, 0.08);
+.account button {
+    border: 1px solid var(--border);
 
-    transform: translateY(-1px);
+    background: var(--surface);
+
+    color: var(--text-soft);
+
+    padding: 8px 13px;
+
+    border-radius: 8px;
+
+    font-size: 13px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        background 0.25s ease,
+        border-color 0.25s ease,
+        color 0.25s ease;
+}
+
+.account button:hover {
+    background: var(--surface-2);
+
+    border-color: var(--border-light);
+
+    color: var(--text);
 }
 
 
-/* =========================================
+/* =========================================================
    MAIN
-========================================= */
+========================================================= */
 
 main {
-    width: min(960px, 92%);
+    width: min(1100px, 92%);
 
     margin: 0 auto;
 
-    padding: 80px 0 120px;
+    padding: 80px 0 100px;
 }
 
 
-/* =========================================
-   PAGE INTRO
-========================================= */
+/* =========================================================
+   UPLOAD HEADING
+========================================================= */
 
-.page-intro {
-    margin-bottom: 48px;
+.upload-heading {
+    margin-bottom: 65px;
+
+    max-width: 760px;
 }
 
-.page-intro .eyebrow {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
+.upload-heading .eyebrow {
+    display: inline-block;
 
-    margin-bottom: 16px;
+    margin-bottom: 14px;
 
     color: var(--primary-light);
 
     font-size: 12px;
-    font-weight: 700;
 
-    letter-spacing: 1.8px;
-    text-transform: uppercase;
+    font-weight: 800;
+
+    letter-spacing: 2px;
 }
 
-.page-intro .eyebrow::before {
-    content: "";
+.upload-heading h1 {
+    font-size: clamp(40px, 6vw, 64px);
 
-    width: 7px;
-    height: 7px;
-
-    border-radius: 50%;
-
-    background: var(--primary);
-
-    box-shadow:
-        0 0 12px rgba(79, 140, 255, 0.9);
-}
-
-.page-intro h1 {
-    font-size: clamp(40px, 6vw, 62px);
-
-    line-height: 1;
+    line-height: 1.05;
 
     letter-spacing: -2.5px;
 
     margin-bottom: 20px;
+
+    font-weight: 850;
 }
 
-.page-intro h1 span {
-    background:
-        linear-gradient(
-            90deg,
-            var(--primary-light),
-            var(--purple)
-        );
-
-    -webkit-background-clip: text;
-    background-clip: text;
-
-    color: transparent;
-}
-
-.page-intro p {
-    max-width: 600px;
-
+.upload-heading p {
     color: var(--muted);
 
-    font-size: 16px;
+    font-size: 17px;
+
+    max-width: 650px;
 }
 
 
-/* =========================================
+/* =========================================================
    FORM
-========================================= */
+========================================================= */
 
 #upload-form {
     display: flex;
+
     flex-direction: column;
-    gap: 22px;
+
+    gap: 28px;
 }
 
 
-/* =========================================
-   SECTIONS
-========================================= */
+/* =========================================================
+   FORM SECTIONS
+========================================================= */
 
 .form-section {
-    position: relative;
-
-    padding: 32px;
+    padding: 35px;
 
     background:
         linear-gradient(
             145deg,
-            rgba(255, 255, 255, 0.025),
-            rgba(255, 255, 255, 0.008)
-        ),
-        var(--surface);
+            rgba(17, 21, 29, 0.96),
+            rgba(12, 15, 21, 0.96)
+        );
 
     border: 1px solid var(--border);
 
-    border-radius: var(--radius);
+    border-radius: var(--radius-lg);
 
     box-shadow: var(--shadow);
-
-    overflow: hidden;
 
     transition:
         border-color 0.3s ease,
         transform 0.3s ease;
 }
 
-.form-section::before {
-    content: "";
-
-    position: absolute;
-
-    top: 0;
-    left: 0;
-
-    width: 100%;
-    height: 1px;
-
-    background:
-        linear-gradient(
-            90deg,
-            transparent,
-            rgba(79, 140, 255, 0.45),
-            transparent
-        );
-
-    opacity: 0.6;
-}
-
 .form-section:hover {
     border-color: var(--border-light);
+
+    transform: translateY(-2px);
 }
 
 
-/* =========================================
-   SECTION HEADER
-========================================= */
+/* =========================================================
+   SECTION HEADING
+========================================================= */
 
-.section-header {
+.section-heading {
     display: flex;
-    align-items: flex-start;
-    gap: 16px;
 
-    margin-bottom: 30px;
+    align-items: flex-start;
+
+    gap: 17px;
+
+    margin-bottom: 32px;
 }
 
 .section-number {
+    width: 43px;
+    height: 43px;
+
     flex-shrink: 0;
 
-    width: 36px;
-    height: 36px;
-
     display: flex;
+
     align-items: center;
     justify-content: center;
 
-    border-radius: 10px;
+    border-radius: 12px;
 
     background:
         linear-gradient(
             135deg,
-            rgba(79, 140, 255, 0.15),
-            rgba(139, 92, 246, 0.12)
+            rgba(124, 92, 255, 0.2),
+            rgba(255, 92, 168, 0.1)
         );
 
-    border: 1px solid rgba(79, 140, 255, 0.2);
+    border: 1px solid rgba(124, 92, 255, 0.3);
 
     color: var(--primary-light);
 
     font-size: 12px;
+
     font-weight: 800;
+
+    letter-spacing: 1px;
 }
 
-.section-header h2 {
-    font-size: 19px;
+.section-heading h2 {
+    font-size: 22px;
 
-    margin-bottom: 4px;
+    line-height: 1.25;
 
-    letter-spacing: -0.3px;
+    margin-bottom: 5px;
 }
 
-.section-header p {
+.section-heading p {
     color: var(--muted);
 
-    font-size: 13px;
+    font-size: 14px;
 }
 
 
-/* =========================================
-   FORM GRID
-========================================= */
+/* =========================================================
+   FIELDS
+========================================================= */
 
-.form-grid {
+.field {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 9px;
+
+    margin-bottom: 24px;
+}
+
+.field.full {
+    width: 100%;
+}
+
+.field-grid {
     display: grid;
 
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
 
-    gap: 24px;
+    gap: 20px;
+
+    margin-bottom: 0;
 }
 
-.form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 9px;
-}
-
-.form-group.full {
-    grid-column: 1 / -1;
+.field-grid .field {
+    margin-bottom: 24px;
 }
 
 
-/* =========================================
+/* =========================================================
    LABELS
-========================================= */
+========================================================= */
 
-label {
+.field label {
     color: var(--text-soft);
 
     font-size: 13px;
-    font-weight: 600;
+
+    font-weight: 700;
 }
 
-label::after {
+.field label::after {
     content: " *";
 
-    color: var(--primary);
+    color: var(--primary-light);
 }
 
 
-/* =========================================
+/* =========================================================
    INPUTS
-========================================= */
+========================================================= */
 
-input,
-select,
-textarea {
+.field input,
+.field textarea {
     width: 100%;
-
-    color: var(--text);
-
-    background: var(--surface-2);
 
     border: 1px solid var(--border);
 
-    border-radius: var(--radius-small);
-
     outline: none;
+
+    background: var(--surface-2);
+
+    color: var(--text);
+
+    border-radius: var(--radius-sm);
 
     font-family: inherit;
 
@@ -513,126 +515,322 @@ textarea {
         background 0.25s ease;
 }
 
-input,
-select {
+.field input {
     height: 50px;
 
     padding: 0 15px;
 }
 
-textarea {
+.field textarea {
     min-height: 150px;
 
-    padding: 15px;
-
     resize: vertical;
+
+    padding: 14px 15px;
+
+    line-height: 1.6;
 }
 
-input::placeholder,
-textarea::placeholder {
+.field input::placeholder,
+.field textarea::placeholder {
     color: var(--placeholder);
 }
 
-input:hover,
-select:hover,
-textarea:hover {
-    border-color: var(--border-light);
-}
+.field input:focus,
+.field textarea:focus {
+    background: var(--surface-3);
 
-input:focus,
-select:focus,
-textarea:focus {
     border-color: var(--primary);
 
-    background: #111a27;
-
     box-shadow:
-        0 0 0 3px rgba(79, 140, 255, 0.10),
-        0 0 30px rgba(79, 140, 255, 0.04);
+        0 0 0 3px rgba(124, 92, 255, 0.12);
 }
 
 
-/* SELECT */
+/* =========================================================
+   FIELD HINT
+========================================================= */
 
-select {
-    cursor: pointer;
+.field-hint {
+    color: var(--muted);
 
-    appearance: none;
+    font-size: 12px;
 
-    background-image:
-        linear-gradient(45deg, transparent 50%, var(--muted) 50%),
-        linear-gradient(135deg, var(--muted) 50%, transparent 50%);
-
-    background-position:
-        calc(100% - 18px) 21px,
-        calc(100% - 13px) 21px;
-
-    background-size:
-        5px 5px,
-        5px 5px;
-
-    background-repeat: no-repeat;
+    margin-top: -2px;
 }
 
 
-/* =========================================
-   FILE UPLOAD AREA
-========================================= */
+/* =========================================================
+   APP FILES
+========================================================= */
 
-.file-grid {
+.upload-grid {
     display: grid;
 
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
 
     gap: 20px;
 }
 
 .file-card {
-    position: relative;
-
-    min-height: 190px;
-
-    padding: 28px;
+    min-height: 145px;
 
     display: flex;
+
     align-items: center;
-    justify-content: center;
 
-    text-align: center;
+    gap: 18px;
 
-    border: 1px dashed #344154;
+    padding: 22px;
 
-    border-radius: 14px;
+    border: 1px dashed var(--border-light);
+
+    border-radius: var(--radius);
 
     background:
-        radial-gradient(
-            circle at center,
-            rgba(79, 140, 255, 0.055),
-            transparent 65%
-        ),
-        var(--surface-2);
+        linear-gradient(
+            145deg,
+            var(--surface-2),
+            var(--surface)
+        );
 
     transition:
-        border-color 0.3s ease,
-        background 0.3s ease,
-        transform 0.3s ease;
+        border-color 0.25s ease,
+        background 0.25s ease,
+        transform 0.25s ease;
 }
 
 .file-card:hover {
     border-color: var(--primary);
 
-    background:
-        radial-gradient(
-            circle at center,
-            rgba(79, 140, 255, 0.09),
-            transparent 65%
-        ),
-        var(--surface-3);
+    background: var(--surface-3);
 
     transform: translateY(-3px);
 }
 
-.file-card input[type="file"] {
+
+/* =========================================================
+   FILE ICON
+========================================================= */
+
+.file-icon {
+    width: 58px;
+    height: 58px;
+
+    flex-shrink: 0;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 16px;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(124, 92, 255, 0.2),
+            rgba(155, 108, 255, 0.08)
+        );
+
+    border: 1px solid rgba(124, 92, 255, 0.3);
+
+    color: var(--primary-light);
+
+    font-size: 24px;
+
+    font-weight: 800;
+}
+
+.file-icon.apk-icon {
+    font-size: 11px;
+
+    letter-spacing: 1px;
+}
+
+
+/* =========================================================
+   FILE CONTENT
+========================================================= */
+
+.file-content {
+    min-width: 0;
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 5px;
+}
+
+.file-content label {
+    color: var(--text);
+
+    font-size: 15px;
+
+    font-weight: 750;
+
+    cursor: pointer;
+}
+
+.file-content label::after {
+    content: " *";
+
+    color: var(--primary-light);
+}
+
+.file-content p {
+    color: var(--muted);
+
+    font-size: 12px;
+}
+
+
+/* =========================================================
+   FILE INPUTS
+========================================================= */
+
+/*
+   IMPORTANT:
+   These inputs are NOT removed.
+   They remain functional and visible.
+*/
+
+.file-content input[type="file"] {
+    width: 100%;
+
+    margin-top: 7px;
+
+    color: var(--text-soft);
+
+    font-size: 12px;
+
+    cursor: pointer;
+}
+
+.file-content input[type="file"]::file-selector-button {
+    margin-right: 10px;
+
+    padding: 7px 11px;
+
+    border: 1px solid var(--border-light);
+
+    border-radius: 7px;
+
+    background: var(--surface-3);
+
+    color: var(--text-soft);
+
+    font-family: inherit;
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.file-content input[type="file"]::file-selector-button:hover {
+    background: var(--primary-dark);
+
+    border-color: var(--primary);
+}
+
+
+/* =========================================================
+   SCREENSHOTS
+========================================================= */
+
+.screenshot-upload {
+    position: relative;
+
+    min-height: 190px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 8px;
+
+    padding: 30px;
+
+    border: 1px dashed var(--border-light);
+
+    border-radius: var(--radius);
+
+    background: var(--surface-2);
+
+    text-align: center;
+
+    overflow: hidden;
+
+    transition:
+        border-color 0.25s ease,
+        background 0.25s ease;
+}
+
+.screenshot-upload:hover {
+    border-color: var(--primary);
+
+    background: var(--surface-3);
+}
+
+.screenshot-upload .plus {
+    width: 48px;
+    height: 48px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 14px;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(124, 92, 255, 0.2),
+            rgba(255, 92, 168, 0.1)
+        );
+
+    border: 1px solid rgba(124, 92, 255, 0.3);
+
+    color: var(--primary-light);
+
+    font-size: 27px;
+
+    line-height: 1;
+}
+
+.screenshot-upload strong {
+    font-size: 15px;
+
+    font-weight: 750;
+}
+
+.screenshot-upload > span:not(.plus) {
+    color: var(--muted);
+
+    font-size: 12px;
+}
+
+
+/*
+   Keep the screenshot input functional.
+
+   Instead of display:none, make it cover the upload area.
+   The user can click anywhere in the box to choose images.
+*/
+
+.screenshot-upload input[type="file"] {
     position: absolute;
 
     inset: 0;
@@ -643,199 +841,30 @@ select {
     opacity: 0;
 
     cursor: pointer;
+
+    z-index: 2;
 }
 
 
-/* FILE CONTENT */
-
-.file-content {
-    pointer-events: none;
-}
-
-.file-icon {
-    width: 52px;
-    height: 52px;
-
-    margin: 0 auto 14px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    border-radius: 14px;
-
-    background:
-        linear-gradient(
-            135deg,
-            rgba(79, 140, 255, 0.15),
-            rgba(139, 92, 246, 0.13)
-        );
-
-    border: 1px solid rgba(79, 140, 255, 0.18);
-
-    color: var(--primary-light);
-
-    font-size: 22px;
-}
-
-.file-content h3 {
-    margin-bottom: 6px;
-
-    font-size: 15px;
-}
-
-.file-content p {
-    color: var(--muted);
-
-    font-size: 12px;
-}
-
-.file-content strong {
-    color: var(--primary-light);
-}
-
-
-/* =========================================
-   LOGO PREVIEW
-========================================= */
-
-.logo-preview {
-    margin-top: 15px;
-
-    display: flex;
-    justify-content: center;
-}
-
-.logo-preview img {
-    width: 85px;
-    height: 85px;
-
-    object-fit: cover;
-
-    border-radius: 18px;
-
-    border: 1px solid var(--border-light);
-
-    box-shadow:
-        0 12px 30px rgba(0, 0, 0, 0.4),
-        0 0 25px rgba(79, 140, 255, 0.12);
-}
-
-
-/* =========================================
-   APK SELECTED
-========================================= */
-
-.apk-selected {
-    margin-top: 14px;
-
-    padding: 10px 13px;
-
-    border-radius: 8px;
-
-    background: rgba(53, 212, 154, 0.07);
-
-    border: 1px solid rgba(53, 212, 154, 0.15);
-
-    color: var(--success);
-
-    font-size: 12px;
-
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-
-/* =========================================
-   SCREENSHOTS
-========================================= */
-
-.screenshot-upload {
-    min-height: 170px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    border: 1px dashed #344154;
-
-    border-radius: 14px;
-
-    background: var(--surface-2);
-
-    cursor: pointer;
-
-    transition: 0.3s ease;
-}
-
-.screenshot-upload:hover {
-    border-color: var(--primary);
-
-    background:
-        radial-gradient(
-            circle,
-            rgba(79, 140, 255, 0.07),
-            transparent 70%
-        );
-}
-
-.screenshot-upload input {
-    display: none;
-}
-
-.screenshot-upload-content {
-    text-align: center;
-}
-
-.screenshot-upload-content .plus {
-    width: 48px;
-    height: 48px;
-
-    margin: 0 auto 12px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    border-radius: 50%;
-
-    border: 1px solid var(--border-light);
-
-    color: var(--primary-light);
-
-    font-size: 25px;
-
-    background: rgba(79, 140, 255, 0.06);
-}
-
-.screenshot-upload-content h3 {
-    font-size: 14px;
-
-    margin-bottom: 5px;
-}
-
-.screenshot-upload-content p {
-    color: var(--muted);
-
-    font-size: 12px;
-}
-
-
-/* SCREENSHOT PREVIEW */
+/* =========================================================
+   SCREENSHOT PREVIEW AREA
+========================================================= */
 
 .wherethescreenshotappears {
     display: grid;
 
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns:
+        repeat(5, minmax(0, 1fr));
 
-    gap: 15px;
+    gap: 12px;
 
     margin-top: 18px;
 }
 
 .screenshot-card {
     position: relative;
+
+    aspect-ratio: 1 / 1;
 
     overflow: hidden;
 
@@ -844,79 +873,46 @@ select {
     border: 1px solid var(--border);
 
     background: var(--surface-2);
-
-    animation: screenshotIn 0.3s ease;
 }
 
 .screenshot-card img {
-    display: block;
-
     width: 100%;
-    height: 190px;
+    height: 100%;
 
     object-fit: cover;
+
+    display: block;
 }
 
 .screenshot-number {
     position: absolute;
 
-    top: 9px;
-    left: 9px;
+    top: 8px;
+    left: 8px;
 
-    min-width: 28px;
-    height: 28px;
+    width: 25px;
+    height: 25px;
 
     display: flex;
+
     align-items: center;
     justify-content: center;
 
-    border-radius: 8px;
+    border-radius: 7px;
 
-    background: rgba(7, 10, 16, 0.82);
-
-    backdrop-filter: blur(8px);
+    background: rgba(0, 0, 0, 0.7);
 
     color: white;
 
     font-size: 11px;
+
     font-weight: 700;
 }
 
 
-/* =========================================
-   UPLOAD MESSAGE
-========================================= */
-
-.upload-message {
-    padding: 14px 16px;
-
-    border-radius: 10px;
-
-    font-size: 13px;
-
-    animation: messageIn 0.3s ease;
-}
-
-.upload-message.success {
-    color: var(--success);
-
-    background: rgba(53, 212, 154, 0.08);
-
-    border: 1px solid rgba(53, 212, 154, 0.18);
-}
-
-.upload-message.error {
-    color: var(--danger);
-
-    background: rgba(255, 95, 109, 0.08);
-
-    border: 1px solid rgba(255, 95, 109, 0.18);
-}
-
-
-/* =========================================
-   PUBLISH AREA
-========================================= */
+/* =========================================================
+   PUBLISH SECTION
+========================================================= */
 
 .publish-section {
     display: flex;
@@ -924,57 +920,65 @@ select {
     align-items: center;
     justify-content: space-between;
 
-    gap: 30px;
+    gap: 25px;
 
-    padding: 28px 32px;
+    padding: 28px 30px;
 
-    border-radius: var(--radius);
+    border: 1px solid var(--border);
+
+    border-radius: var(--radius-lg);
 
     background:
         linear-gradient(
             135deg,
-            rgba(79, 140, 255, 0.08),
-            rgba(139, 92, 246, 0.06)
+            rgba(124, 92, 255, 0.1),
+            rgba(17, 21, 29, 0.95)
         );
-
-    border: 1px solid rgba(79, 140, 255, 0.17);
 }
 
-.publish-info h2 {
-    font-size: 18px;
+.publish-section > div {
+    display: flex;
 
-    margin-bottom: 5px;
+    flex-direction: column;
+
+    gap: 5px;
 }
 
-.publish-info p {
+.publish-section strong {
+    font-size: 17px;
+
+    font-weight: 750;
+}
+
+.publish-section p {
     color: var(--muted);
 
     font-size: 13px;
 }
 
 
-/* =========================================
+/* =========================================================
    PUBLISH BUTTON
-========================================= */
+========================================================= */
 
 .publish-button {
     flex-shrink: 0;
 
-    min-width: 190px;
+    min-width: 155px;
 
-    height: 52px;
+    height: 50px;
 
-    padding: 0 25px;
+    padding: 0 20px;
 
     border: none;
 
-    border-radius: 11px;
+    border-radius: 10px;
 
     background:
         linear-gradient(
             135deg,
             var(--primary),
-            var(--primary-dark)
+            var(--purple)
         );
 
     color: white;
@@ -982,12 +986,13 @@ select {
     font-family: inherit;
 
     font-size: 14px;
-    font-weight: 700;
+
+    font-weight: 800;
 
     cursor: pointer;
 
     box-shadow:
-        0 12px 30px rgba(79, 140, 255, 0.20);
+        0 10px 25px rgba(124, 92, 255, 0.22);
 
     transition:
         transform 0.25s ease,
@@ -995,82 +1000,66 @@ select {
         filter 0.25s ease;
 }
 
-.publish-button:hover {
-    transform: translateY(-3px);
+.publish-button span {
+    margin-left: 8px;
 
-    filter: brightness(1.08);
+    font-size: 18px;
+}
+
+.publish-button:hover {
+    transform: translateY(-2px);
 
     box-shadow:
-        0 16px 38px rgba(79, 140, 255, 0.30);
+        0 14px 30px rgba(124, 92, 255, 0.32);
+
+    filter: brightness(1.08);
 }
 
 .publish-button:active {
     transform: translateY(0);
 }
 
-.publish-button:disabled {
-    opacity: 0.55;
 
-    cursor: not-allowed;
+/* =========================================================
+   UPLOAD MESSAGE
+   Works if upload.js creates these elements
+========================================================= */
 
-    transform: none;
+.upload-message {
+    padding: 13px 16px;
 
-    box-shadow: none;
+    margin-top: 15px;
+
+    border-radius: 10px;
+
+    font-size: 13px;
+
+    font-weight: 600;
+}
+
+.upload-message.success {
+    color: var(--success);
+
+    background: rgba(74, 222, 128, 0.08);
+
+    border: 1px solid rgba(74, 222, 128, 0.2);
+}
+
+.upload-message.error {
+    color: var(--danger);
+
+    background: rgba(255, 95, 95, 0.08);
+
+    border: 1px solid rgba(255, 95, 95, 0.2);
 }
 
 
-/* =========================================
-   FOOTER
-========================================= */
-
-footer {
-    padding: 40px 6%;
-
-    text-align: center;
-
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
-
-    color: var(--muted);
-
-    font-size: 12px;
-}
-
-
-/* =========================================
-   ANIMATIONS
-========================================= */
-
-@keyframes screenshotIn {
-    from {
-        opacity: 0;
-        transform: translateY(8px) scale(0.98);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
-}
-
-@keyframes messageIn {
-    from {
-        opacity: 0;
-        transform: translateY(-5px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-
-/* =========================================
+/* =========================================================
    SCROLLBAR
-========================================= */
+========================================================= */
 
 ::-webkit-scrollbar {
-    width: 8px;
+    width: 9px;
 }
 
 ::-webkit-scrollbar-track {
@@ -1078,58 +1067,165 @@ footer {
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #263244;
+    background: var(--surface-3);
 
     border-radius: 20px;
+
+    border: 2px solid var(--bg);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: #34445b;
+    background: var(--border-light);
 }
 
 
-/* =========================================
-   MOBILE
-========================================= */
+/* =========================================================
+   SELECTION
+========================================================= */
 
-@media (max-width: 850px) {
+::selection {
+    background: rgba(124, 92, 255, 0.35);
+
+    color: white;
+}
+
+
+/* =========================================================
+   RESPONSIVE — TABLET
+========================================================= */
+
+@media (max-width: 900px) {
 
     header {
         padding: 0 4%;
+
+        gap: 20px;
     }
 
     nav {
-        gap: 18px;
+        gap: 15px;
     }
 
     nav a {
         font-size: 13px;
     }
 
-    .account span {
+    .account {
+        display: none;
+    }
+
+    main {
+        width: min(94%, 800px);
+
+        padding-top: 60px;
+    }
+
+    .field-grid {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+    .upload-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .wherethescreenshotappears {
+        grid-template-columns:
+            repeat(3, minmax(0, 1fr));
+    }
+}
+
+
+/* =========================================================
+   RESPONSIVE — MOBILE
+========================================================= */
+
+@media (max-width: 650px) {
+
+    header {
+        min-height: 65px;
+
+        padding: 0 5%;
+
+        justify-content: space-between;
+    }
+
+    .logo {
+        font-size: 21px;
+    }
+
+    nav {
         display: none;
     }
 
     main {
         width: 92%;
 
-        padding-top: 55px;
+        padding: 48px 0 70px;
     }
 
-    .form-grid {
+    .upload-heading {
+        margin-bottom: 45px;
+    }
+
+    .upload-heading h1 {
+        font-size: 40px;
+
+        letter-spacing: -1.8px;
+    }
+
+    .upload-heading p {
+        font-size: 15px;
+    }
+
+    .form-section {
+        padding: 23px 18px;
+
+        border-radius: 16px;
+    }
+
+    .section-heading {
+        gap: 12px;
+
+        margin-bottom: 25px;
+    }
+
+    .section-number {
+        width: 38px;
+        height: 38px;
+
+        border-radius: 10px;
+    }
+
+    .section-heading h2 {
+        font-size: 19px;
+    }
+
+    .section-heading p {
+        font-size: 12px;
+    }
+
+    .field-grid {
         grid-template-columns: 1fr;
+
+        gap: 0;
     }
 
-    .form-group.full {
-        grid-column: auto;
+    .field {
+        margin-bottom: 20px;
     }
 
-    .file-grid {
-        grid-template-columns: 1fr;
+    .file-card {
+        padding: 18px;
+
+        min-height: 135px;
     }
 
-    .wherethescreenshotappears {
-        grid-template-columns: repeat(2, 1fr);
+    .file-icon {
+        width: 50px;
+        height: 50px;
+
+        border-radius: 13px;
     }
 
     .publish-section {
@@ -1137,82 +1233,43 @@ footer {
 
         align-items: stretch;
 
-        text-align: center;
+        padding: 23px 18px;
     }
 
     .publish-button {
         width: 100%;
     }
+
+    .wherethescreenshotappears {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
 }
 
 
-/* =========================================
-   SMALL PHONES
-========================================= */
+/* =========================================================
+   RESPONSIVE — SMALL PHONES
+========================================================= */
 
-@media (max-width: 600px) {
+@media (max-width: 400px) {
 
-    header {
-        height: 68px;
-    }
-
-    .logo {
-        font-size: 20px;
-    }
-
-    nav {
-        display: none;
-    }
-
-    main {
-        width: 94%;
-
-        padding: 42px 0 80px;
-    }
-
-    .page-intro {
-        margin-bottom: 32px;
-    }
-
-    .page-intro h1 {
-        font-size: 42px;
-
-        letter-spacing: -1.8px;
-    }
-
-    .page-intro p {
-        font-size: 14px;
-    }
-
-    .form-section {
-        padding: 22px;
-
-        border-radius: 13px;
-    }
-
-    .section-header {
-        margin-bottom: 24px;
-    }
-
-    .section-header h2 {
-        font-size: 17px;
+    .upload-heading h1 {
+        font-size: 34px;
     }
 
     .file-card {
-        min-height: 170px;
+        flex-direction: column;
 
-        padding: 22px;
+        align-items: flex-start;
     }
 
-    .wherethescreenshotappears {
-        grid-template-columns: 1fr;
+    .file-content {
+        width: 100%;
     }
 
-    .screenshot-card img {
-        height: 220px;
-    }
+    .screenshot-upload {
+        min-height: 165px;
 
-    .publish-section {
-        padding: 23px;
+        padding: 20px;
     }
 }
