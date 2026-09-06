@@ -751,7 +751,7 @@ input{
 
     color:#F8FAFC ;
 
-    width:10% ;
+    width:20% ;
 
     height:30% ;
 
@@ -764,7 +764,7 @@ input:hover{
 
     color:#F8FAFC;
 
-    width:12% ;
+    width:30% ;
 
     transition:0.3s ;
 }
