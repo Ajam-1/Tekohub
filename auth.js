@@ -1,4 +1,3 @@
-
 // ================================
 // TEKOHUB AUTHENTICATION
 // ================================
@@ -19,7 +18,7 @@ async function getCurrentUser() {
     try {
 
         const response = await fetch(
-            "http://localhost:3000/api/me",
+            "https://tekohub.onrender.com/api/me",
             {
                 headers: {
                     "Authorization": `Bearer ${token}`
@@ -133,4 +132,3 @@ async function setupAuth() {
 // ================================
 
 setupAuth();
-

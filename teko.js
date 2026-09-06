@@ -35,7 +35,7 @@ async function loadHomepageApps() {
     try {
 
         const response =
-            await fetch("http://localhost:3000/api/apps");
+            await fetch("https://tekohub.onrender.com/api/apps");
 
         if (!response.ok) {
             throw new Error("Failed to load apps");
@@ -101,7 +101,7 @@ function displayHomepageApps(apps) {
                 ${
                     app.logo
                     ? `<img
-                        src="http://localhost:3000${app.logo}"
+                        src="https://tekohub.onrender.com${app.logo}"
                         alt="${app.name} logo"
                       >`
                     : `<div class="app-placeholder">

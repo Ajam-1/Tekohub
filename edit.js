@@ -95,7 +95,7 @@ async function loadApp() {
 
         const response =
             await fetch(
-                `http://localhost:3000/api/apps/${appId}`,
+                `https://tekohub.onrender.com/api/apps/${appId}`,
                 {
                     headers: {
                         "Authorization":
@@ -260,7 +260,7 @@ form.addEventListener(
 
             const response =
                 await fetch(
-                    `http://localhost:3000/api/apps/${appId}`,
+                    `https://tekohub.onrender.com/api/apps/${appId}`,
                     {
                         method: "PUT",
 

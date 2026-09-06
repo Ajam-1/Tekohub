@@ -69,7 +69,7 @@ async function loadProfile() {
     try {
 
         const response = await fetch(
-            "http://localhost:3000/api/me",
+            "https://tekohub.onrender.com/api/me",
             {
                 headers: {
                     "Authorization":
@@ -151,7 +151,7 @@ async function loadMyApps() {
     try {
 
         const response = await fetch(
-            "http://localhost:3000/api/apps/my-apps",
+            "https://tekohub.onrender.com/api/apps/my-apps",
             {
                 headers: {
                     "Authorization":
@@ -443,7 +443,7 @@ confirmDelete.addEventListener(
 
             const response =
                 await fetch(
-                    `http://localhost:3000/api/apps/${selectedAppId}`,
+                    `https://tekohub.onrender.com/api/apps/${selectedAppId}`,
                     {
                         method: "DELETE",
 
@@ -517,7 +517,7 @@ function getFileURL(file) {
 
 
     return (
-        "http://localhost:3000" +
+        "https://tekohub.onrender.com" +
         (
             file.startsWith("/")
                 ? file

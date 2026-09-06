@@ -1,4 +1,3 @@
-
 const appsContainer = document.querySelector("#apps");
 const filters = document.querySelectorAll(".filter");
 const noResults = document.querySelector("#no-results");
@@ -10,7 +9,7 @@ async function loadApps() {
     try {
 
         const response = await fetch(
-            "http://localhost:3000/api/apps"
+            "https://tekohub.onrender.com/api/apps"
         );
 
         const data = await response.json();
@@ -135,4 +134,3 @@ filters.forEach(function(filter) {
 
 
 loadApps();
-

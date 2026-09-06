@@ -2,7 +2,7 @@
 // TEKOHUB CATEGORY PAGE
 // ========================================
 
-const API_URL = "http://localhost:3000";
+const API_URL = "https://tekohub.onrender.com";
 
 const categoryGrid =
     document.querySelector(".category-grid");

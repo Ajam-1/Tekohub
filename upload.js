@@ -19,7 +19,7 @@ async function checkLogin() {
     try {
 
         const response = await fetch(
-            "http://localhost:3000/api/me",
+            "https://tekohub.onrender.com/api/me",
             {
                 headers: {
                     "Authorization": `Bearer ${token}`
@@ -275,7 +275,7 @@ if (!logoFile.type.startsWith("image/")) {
                 alert("Uploading app...");
 
                 const response = await fetch(
-                    "http://localhost:3000/api/apps",
+                    "https://tekohub.onrender.com/api/apps",
                     {
                         method: "POST",
 
