@@ -1257,6 +1257,10 @@ main {
         font-size: 34px;
     }
 
+   nav{
+      display:inline-flex ;
+   }
+
     .file-card {
         flex-direction: column;
 
