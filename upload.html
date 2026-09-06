@@ -1,82 +1,372 @@
 <!DOCTYPE html>
+
 <html lang="en">
+
 <head>
 
-    <meta charset="UTF-8">
+```
+<meta charset="UTF-8">
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>uPLOAD | TekoHub</title>
-
-    <link rel="stylesheet" href="upload.css"> 
-    
-    </head>
-    <body>
-
-        <header>
-
-            <span>Tekohub</span>
-
-            <a href="teko.html">Home</a>
-            <a href="exp.html">Explore</a>
-            <a href="cat.html">Categories</a>
-            <a href="trending.html">Trending</a>
-            <a href="upload.html" id="active">Upload</a>
-            <a href="login.html">Login</a>
-            <a href="profile.html">Profile</a>
-
-            <a href="profile.html" id="username-display">Guest</a>
-<button id="logout">Logout</button>
-            
-
-        </header>
-
-        <section id="upload">
-
-            <div class="upload-heading">
-
-                <h2>Upload Your App</h2>
-
-                <p>Share your app with the world and reach a wider audience.</p>
-
-            </div>
-
-            <form id="upload-form" action="#" method="POST" enctype="multipart/form-data">
-
-                <label for="app-name">App Name:</label>
-                <input type="text" id="app-name" name="app-name" required>
-                <input type="text" id="app-developer" name="app-developer" placeholder="Developer Name" required>
-                <input type="text" id="app-version" name="app-version" placeholder="Version (e.g., 1.0.0)" required>
-                <input type="text" id="app-category" name="app-category" placeholder="Category (e.g., Productivity)" required>  
-
-                <label for="app-description">App Description:</label>
-                <textarea id="app-description" name="app-description" required></textarea>
-
-                <label for="app-logo">App Logo:</label>
-<input
-    type="file"
-    id="app-logo"
-    name="app-logo"
-    accept="image/png, image/jpeg, image/webp"
-    required
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
 >
 
-                <label for="app-file">Upload APK File:</label>
-                <input type="file" id="app-file" name="app-file" accept=".apk" required>
-                <div id="screenshots">
-                    <h2>Screenshots</h2>
-                    <div>+<input type="file" name="screenshots[]" accept="image/*"multiple></div>
-                    <div class="wherethescreenshotappears"></div>
-                </div>
+<title>Upload | TekoHub</title>
 
-                <button type="submit">Upload</button>
+<link rel="stylesheet" href="upload.css">
+```
 
-            </form>
+</head>
+
+<body>
+
+<header>
+
+```
+<span class="logo">TekoHub</span>
+
+<nav>
+
+    <a href="teko.html">Home</a>
+    <a href="exp.html">Explore</a>
+    <a href="cat.html">Categories</a>
+    <a href="trending.html">Trending</a>
+    <a href="upload.html" id="active">Upload</a>
+    <a href="login.html">Login</a>
+    <a href="profile.html">Profile</a>
+
+</nav>
+
+<div class="account">
+
+    <a href="profile.html" id="username-display">Guest</a>
+
+    <button id="logout">Logout</button>
+
+</div>
+```
+
+</header>
+
+<main id="upload">
+
+```
+<section class="upload-heading">
+
+    <span class="eyebrow">DEVELOPER CENTER</span>
+
+    <h1>Publish your app.</h1>
+
+    <p>
+        Share your app with the TekoHub community and let people
+        discover what you've built.
+    </p>
 
 </section>
 
+
+
+<form
+    id="upload-form"
+    action="#"
+    method="POST"
+    enctype="multipart/form-data"
+>
+
+
+    <!-- =========================
+         APP INFORMATION
+    ========================== -->
+
+    <section class="form-section">
+
+        <div class="section-heading">
+
+            <div class="section-number">01</div>
+
+            <div>
+                <h2>App Information</h2>
+                <p>Tell people about your application.</p>
+            </div>
+
+        </div>
+
+
+        <div class="field full">
+
+            <label for="app-name">App Name</label>
+
+            <input
+                type="text"
+                id="app-name"
+                name="app-name"
+                placeholder="e.g. Teko Notes"
+                required
+            >
+
+        </div>
+
+
+        <div class="field-grid">
+
+            <div class="field">
+
+                <label for="app-developer">
+                    Developer
+                </label>
+
+                <input
+                    type="text"
+                    id="app-developer"
+                    name="app-developer"
+                    placeholder="Developer name"
+                    required
+                >
+
+            </div>
+
+
+            <div class="field">
+
+                <label for="app-version">
+                    Version
+                </label>
+
+                <input
+                    type="text"
+                    id="app-version"
+                    name="app-version"
+                    placeholder="e.g. 1.0.0"
+                    required
+                >
+
+            </div>
+
+
+            <div class="field">
+
+                <label for="app-category">
+                    Category
+                </label>
+
+                <input
+                    type="text"
+                    id="app-category"
+                    name="app-category"
+                    placeholder="e.g. Productivity"
+                    required
+                >
+
+            </div>
+
+        </div>
+
+
+        <div class="field">
+
+            <label for="app-description">
+                Description
+            </label>
+
+            <textarea
+                id="app-description"
+                name="app-description"
+                placeholder="Describe what your app does, who it is for, and what makes it useful..."
+                required
+            ></textarea>
+
+            <span class="field-hint">
+                Give users a clear reason to try your app.
+            </span>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =========================
+         APP FILES
+    ========================== -->
+
+    <section class="form-section">
+
+        <div class="section-heading">
+
+            <div class="section-number">02</div>
+
+            <div>
+                <h2>App Files</h2>
+                <p>Upload the files users will see and download.</p>
+            </div>
+
+        </div>
+
+
+
+        <div class="upload-grid">
+
+
+            <!-- APP LOGO -->
+
+            <div class="file-card">
+
+                <div class="file-icon">
+                    ◈
+                </div>
+
+                <div class="file-content">
+
+                    <label for="app-logo">
+                        App Logo
+                    </label>
+
+                    <p>
+                        PNG, JPG or WEBP
+                    </p>
+
+                    <input
+                        type="file"
+                        id="app-logo"
+                        name="app-logo"
+                        accept="image/png, image/jpeg, image/webp"
+                        required
+                    >
+
+                </div>
+
+            </div>
+
+
+
+            <!-- APK -->
+
+            <div class="file-card">
+
+                <div class="file-icon apk-icon">
+                    APK
+                </div>
+
+                <div class="file-content">
+
+                    <label for="app-file">
+                        APK File
+                    </label>
+
+                    <p>
+                        Android application package
+                    </p>
+
+                    <input
+                        type="file"
+                        id="app-file"
+                        name="app-file"
+                        accept=".apk"
+                        required
+                    >
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =========================
+         SCREENSHOTS
+    ========================== -->
+
+    <section
+        id="screenshots"
+        class="form-section"
+    >
+
+        <div class="section-heading">
+
+            <div class="section-number">03</div>
+
+            <div>
+
+                <h2>Screenshots</h2>
+
+                <p>
+                    Show users what your app looks like.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="screenshot-upload">
+
+            <span class="plus">+</span>
+
+            <strong>
+                Add screenshots
+            </strong>
+
+            <span>
+                Up to 5 images
+            </span>
+
+            <input
+                type="file"
+                name="screenshots[]"
+                accept="image/*"
+                multiple
+            >
+
+        </div>
+
+
+        <div class="wherethescreenshotappears"></div>
+
+    </section>
+
+
+
+    <!-- =========================
+         PUBLISH
+    ========================== -->
+
+    <section class="publish-section">
+
+        <div>
+
+            <strong>Ready to publish?</strong>
+
+            <p>
+                Make sure your information and files are correct.
+            </p>
+
+        </div>
+
+
+        <button
+            type="submit"
+            class="publish-button"
+        >
+            Publish App
+            <span>→</span>
+        </button>
+
+    </section>
+
+
+</form>
+```
+
+</main>
+
 <script src="upload.js"></script>
+
 <script src="auth.js"></script>
-            
-    </body>
+
+</body>
+
 </html>
