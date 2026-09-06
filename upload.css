@@ -1155,7 +1155,7 @@ main {
     }
 
     nav {
-        display:flex ;
+        display:inline-flex ;
     }
 
     main {
