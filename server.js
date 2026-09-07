@@ -1,6 +1,13 @@
+// ======================================================
+// TEKOHUB SERVER
+// ======================================================
+
+// ======================================================
+// IMPORTS
+// ======================================================
+
 const express = require("express");
 const cors = require("cors");
-const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const bcrypt = require("bcryptjs");
@@ -9,40 +16,98 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 
+
+// ======================================================
+// MODELS
+// ======================================================
+
 const User = require("./models/user");
 const App = require("./models/app");
 const Review = require("./models/review");
 
+
+// ======================================================
+// ENVIRONMENT
+// ======================================================
+
 dotenv.config();
+
+
+// ======================================================
+// SERVER
+// ======================================================
 
 const server = express();
 
 
 // ======================================================
-// BASIC SERVER SETUP
+// BASIC MIDDLEWARE
 // ======================================================
 
 server.use(cors());
-server.use(bodyParser.json());
-server.use(bodyParser.urlencoded({ extended: true }));
+
+server.use(express.json());
+
+server.use(
+    express.urlencoded({
+        extended: true
+    })
+);
 
 
 // ======================================================
 // UPLOAD DIRECTORIES
 // ======================================================
 
-const uploadDir = path.join(__dirname, "uploads");
+const uploadDir =
+    path.join(
+        __dirname,
+        "uploads"
+    );
 
-const apkDir = path.join(uploadDir, "apks");
-const logoDir = path.join(uploadDir, "logos");
-const screenshotDir = path.join(uploadDir, "screenshots");
+const apkDir =
+    path.join(
+        uploadDir,
+        "apks"
+    );
+
+const logoDir =
+    path.join(
+        uploadDir,
+        "logos"
+    );
+
+const screenshotDir =
+    path.join(
+        uploadDir,
+        "screenshots"
+    );
 
 
-// Create folders automatically
+// ======================================================
+// CREATE UPLOAD DIRECTORIES
+// ======================================================
 
-fs.mkdirSync(apkDir, { recursive: true });
-fs.mkdirSync(logoDir, { recursive: true });
-fs.mkdirSync(screenshotDir, { recursive: true });
+fs.mkdirSync(
+    apkDir,
+    {
+        recursive: true
+    }
+);
+
+fs.mkdirSync(
+    logoDir,
+    {
+        recursive: true
+    }
+);
+
+fs.mkdirSync(
+    screenshotDir,
+    {
+        recursive: true
+    }
+);
 
 
 // ======================================================
@@ -56,403 +121,765 @@ server.use(
 
 
 // ======================================================
+// SUPPORTED APP FILE TYPES
+// ======================================================
+
+const allowedAppExtensions = [
+
+    ".apk",
+
+    ".exe",
+
+    ".msi",
+
+    ".deb",
+
+    ".appimage",
+
+    ".dmg",
+
+    ".app"
+
+];
+
+
+// ======================================================
 // MULTER STORAGE
 // ======================================================
 
-const storage = multer.diskStorage({
+const storage =
+    multer.diskStorage({
 
-    destination: function (req, file, cb) {
+        destination:
+            function (
+                req,
+                file,
+                callback
+            ) {
 
-        // APP LOGO
-        if (file.fieldname === "app-logo") {
+                // ------------------------------
+                // APP LOGO
+                // ------------------------------
 
-            cb(null, logoDir);
+                if (
+                    file.fieldname ===
+                    "app-logo"
+                ) {
 
-        }
+                    callback(
+                        null,
+                        logoDir
+                    );
 
-        // APK
-        else if (file.fieldname === "app-file") {
+                    return;
 
-            cb(null, apkDir);
-
-        }
-
-        // SCREENSHOTS
-        else if (
-            file.fieldname === "screenshots[]" ||
-            file.fieldname === "screenshots"
-        ) {
-
-            cb(null, screenshotDir);
-
-        }
-
-        // UNKNOWN FIELD
-        else {
-
-            cb(
-                new Error(
-                    `Unexpected file field: ${file.fieldname}`
-                )
-            );
-
-        }
-
-    },
+                }
 
 
-    filename: function (req, file, cb) {
+                // ------------------------------
+                // APP FILE
+                // ------------------------------
 
-        const extension =
-            path.extname(file.originalname).toLowerCase();
+                if (
+                    file.fieldname ===
+                    "app-file"
+                ) {
 
-        const uniqueName =
-            Date.now() +
-            "-" +
-            Math.round(Math.random() * 1000000000) +
-            extension;
+                    callback(
+                        null,
+                        apkDir
+                    );
 
-        cb(null, uniqueName);
+                    return;
 
-    }
+                }
 
-});
+
+                // ------------------------------
+                // SCREENSHOTS
+                // ------------------------------
+
+                if (
+                    file.fieldname ===
+                        "screenshots[]" ||
+                    file.fieldname ===
+                        "screenshots"
+                ) {
+
+                    callback(
+                        null,
+                        screenshotDir
+                    );
+
+                    return;
+
+                }
+
+
+                // ------------------------------
+                // UNKNOWN FIELD
+                // ------------------------------
+
+                callback(
+                    new Error(
+                        `Unexpected file field: ${file.fieldname}`
+                    )
+                );
+
+            },
+
+
+        filename:
+            function (
+                req,
+                file,
+                callback
+            ) {
+
+                const extension =
+                    path
+                        .extname(
+                            file.originalname
+                        )
+                        .toLowerCase();
+
+
+                const uniqueName =
+                    Date.now() +
+                    "-" +
+                    Math.round(
+                        Math.random() *
+                        1000000000
+                    ) +
+                    extension;
+
+
+                callback(
+                    null,
+                    uniqueName
+                );
+
+            }
+
+    });
 
 
 // ======================================================
 // FILE FILTER
 // ======================================================
 
-const fileFilter = function (req, file, cb) {
-
-    // ==================================================
-    // APP LOGO
-    // ==================================================
-
-    if (file.fieldname === "app-logo") {
-
-        const allowedTypes = [
-            "image/png",
-            "image/jpeg",
-            "image/webp"
-        ];
-
-        if (allowedTypes.includes(file.mimetype)) {
-
-            cb(null, true);
-
-        } else {
-
-            cb(
-                new Error(
-                    "App logo must be PNG, JPEG, or WEBP."
-                )
-            );
-
-        }
-
-    }
-
-
-    // ==================================================
-    // APK
-    // ==================================================
-
-    else if (file.fieldname === "app-file") {
-
-        const extension =
-            path.extname(file.originalname).toLowerCase();
-
-        if (extension === ".apk") {
-
-            cb(null, true);
-
-        } else {
-
-            cb(
-                new Error(
-                    "Only APK files are allowed."
-                )
-            );
-
-        }
-
-    }
-
-
-    // ==================================================
-    // SCREENSHOTS
-    // ==================================================
-
-    else if (
-        file.fieldname === "screenshots[]" ||
-        file.fieldname === "screenshots"
+const fileFilter =
+    function (
+        req,
+        file,
+        callback
     ) {
 
-        if (file.mimetype.startsWith("image/")) {
+        // ==================================================
+        // APP LOGO
+        // ==================================================
 
-            cb(null, true);
+        if (
+            file.fieldname ===
+            "app-logo"
+        ) {
 
-        } else {
+            const allowedLogoTypes = [
 
-            cb(
-                new Error(
-                    "Screenshots must be image files."
+                "image/png",
+
+                "image/jpeg",
+
+                "image/webp"
+
+            ];
+
+
+            if (
+                allowedLogoTypes.includes(
+                    file.mimetype
                 )
-            );
+            ) {
+
+                callback(
+                    null,
+                    true
+                );
+
+            } else {
+
+                callback(
+                    new Error(
+                        "App logo must be PNG, JPEG, or WEBP."
+                    )
+                );
+
+            }
+
+            return;
 
         }
 
-    }
+
+        // ==================================================
+        // APP FILE
+        // ==================================================
+
+        if (
+            file.fieldname ===
+            "app-file"
+        ) {
+
+            const extension =
+                path
+                    .extname(
+                        file.originalname
+                    )
+                    .toLowerCase();
 
 
-    // ==================================================
-    // UNKNOWN FIELD
-    // ==================================================
+            if (
+                allowedAppExtensions.includes(
+                    extension
+                )
+            ) {
 
-    else {
+                callback(
+                    null,
+                    true
+                );
 
-        cb(
+            } else {
+
+                callback(
+                    new Error(
+                        "Supported app files: APK, EXE, MSI, DEB, AppImage, DMG, and APP."
+                    )
+                );
+
+            }
+
+            return;
+
+        }
+
+
+        // ==================================================
+        // SCREENSHOTS
+        // ==================================================
+
+        if (
+            file.fieldname ===
+                "screenshots[]" ||
+            file.fieldname ===
+                "screenshots"
+        ) {
+
+            if (
+                file.mimetype &&
+                file.mimetype.startsWith(
+                    "image/"
+                )
+            ) {
+
+                callback(
+                    null,
+                    true
+                );
+
+            } else {
+
+                callback(
+                    new Error(
+                        "Screenshots must be image files."
+                    )
+                );
+
+            }
+
+            return;
+
+        }
+
+
+        // ==================================================
+        // UNKNOWN FIELD
+        // ==================================================
+
+        callback(
             new Error(
                 `Unexpected file field: ${file.fieldname}`
             )
         );
 
-    }
-
-};
+    };
 
 
 // ======================================================
 // MULTER
 // ======================================================
 
-const upload = multer({
+const upload =
+    multer({
 
-    storage: storage,
+        storage:
 
-    fileFilter: fileFilter,
+            storage,
 
-    limits: {
+        fileFilter:
 
-        // 100 MB maximum per file
-        fileSize: 100 * 1024 * 1024
+            fileFilter,
+
+        limits: {
+
+            // 100 MB per file
+
+            fileSize:
+                100 *
+                1024 *
+                1024
+
+        }
+
+    });
+
+
+// ======================================================
+// AUTHENTICATION HELPER
+// ======================================================
+
+function getToken(req) {
+
+    const authHeader =
+        req.headers.authorization;
+
+
+    if (
+        !authHeader
+    ) {
+
+        return null;
 
     }
 
-});
+
+    if (
+        !authHeader.startsWith(
+            "Bearer "
+        )
+    ) {
+
+        return null;
+
+    }
+
+
+    return authHeader
+        .split(" ")[1];
+
+}
 
 
 // ======================================================
-// MONGODB
+// AUTHENTICATE USER
 // ======================================================
 
-mongoose
-    .connect(process.env.MONGODB_URI)
-    .then(function () {
+async function authenticateUser(
+    req
+) {
 
-        console.log("MongoDB connected successfully");
+    const token =
+        getToken(req);
 
-    })
-    .catch(function (error) {
+
+    if (!token) {
+
+        throw new Error(
+            "AUTH_REQUIRED"
+        );
+
+    }
+
+
+    const decoded =
+        jwt.verify(
+            token,
+            process.env.JWT_SECRET
+        );
+
+
+    const user =
+        await User.findById(
+            decoded.userId
+        );
+
+
+    if (!user) {
+
+        throw new Error(
+            "USER_NOT_FOUND"
+        );
+
+    }
+
+
+    return {
+        user,
+        decoded
+    };
+
+}
+
+
+// ======================================================
+// MONGODB CONNECTION
+// ======================================================
+
+async function connectDatabase() {
+
+    try {
+
+        if (
+            !process.env.MONGODB_URI
+        ) {
+
+            console.error(
+                "MONGODB_URI is missing from .env"
+            );
+
+            return;
+
+        }
+
+
+        await mongoose.connect(
+            process.env.MONGODB_URI,
+            {
+                serverSelectionTimeoutMS:
+                    10000
+            }
+        );
+
+
+        console.log(
+            "MongoDB connected successfully"
+        );
+
+
+    } catch (error) {
 
         console.error(
             "MongoDB connection error:",
-            error
+            error.message
         );
 
-    });
+    }
+
+}
 
 
 // ======================================================
 // SIGN UP
 // ======================================================
 
-server.post("/api/signup", async function (req, res) {
+server.post(
+    "/api/signup",
+    async function (
+        req,
+        res
+    ) {
 
-    try {
+        try {
 
-        const {
-            username,
-            email,
-            password
-        } = req.body;
+            const {
+                username,
+                email,
+                password
+            } = req.body;
 
 
-        if (!username || !email || !password) {
+            // ------------------------------
+            // VALIDATE
+            // ------------------------------
 
-            return res.status(400).json({
+            if (
+                !username ||
+                !email ||
+                !password
+            ) {
+
+                return res.status(
+                    400
+                ).json({
+
+                    message:
+                        "Please fill in all fields."
+
+                });
+
+            }
+
+
+            // ------------------------------
+            // CHECK EXISTING USER
+            // ------------------------------
+
+            const existingUser =
+                await User.findOne({
+
+                    $or: [
+
+                        {
+                            username:
+                                username
+                        },
+
+                        {
+                            email:
+                                email.toLowerCase()
+                        }
+
+                    ]
+
+                });
+
+
+            if (
+                existingUser
+            ) {
+
+                return res.status(
+                    400
+                ).json({
+
+                    message:
+                        "Username or email already exists."
+
+                });
+
+            }
+
+
+            // ------------------------------
+            // HASH PASSWORD
+            // ------------------------------
+
+            const hashedPassword =
+                await bcrypt.hash(
+                    password,
+                    10
+                );
+
+
+            // ------------------------------
+            // CREATE USER
+            // ------------------------------
+
+            const newUser =
+                new User({
+
+                    username:
+                        username,
+
+                    email:
+                        email.toLowerCase(),
+
+                    password:
+                        hashedPassword
+
+                });
+
+
+            await newUser.save();
+
+
+            // ------------------------------
+            // RESPONSE
+            // ------------------------------
+
+            res.status(
+                201
+            ).json({
 
                 message:
-                    "Please fill in all fields."
+                    "Account created successfully."
+
+            });
+
+
+        } catch (error) {
+
+            console.error(
+                "Signup error:",
+                error
+            );
+
+
+            res.status(
+                500
+            ).json({
+
+                message:
+                    "Server error."
 
             });
 
         }
-
-
-        const existingUser =
-            await User.findOne({
-
-                $or: [
-
-                    {
-                        username: username
-                    },
-
-                    {
-                        email:
-                            email.toLowerCase()
-                    }
-
-                ]
-
-            });
-
-
-        if (existingUser) {
-
-            return res.status(400).json({
-
-                message:
-                    "Username or email already exists."
-
-            });
-
-        }
-
-
-        const hashedPassword =
-            await bcrypt.hash(password, 10);
-
-
-        const newUser = new User({
-
-            username: username,
-
-            email:
-                email.toLowerCase(),
-
-            password:
-                hashedPassword
-
-        });
-
-
-        await newUser.save();
-
-
-        res.status(201).json({
-
-            message:
-                "Account created successfully."
-
-        });
-
-
-    } catch (error) {
-
-        console.error(
-            "Signup error:",
-            error
-        );
-
-
-        res.status(500).json({
-
-            message:
-                "Server error."
-
-        });
 
     }
-
-});
+);
 
 
 // ======================================================
 // LOGIN
 // ======================================================
 
-server.post("/api/login", async function (req, res) {
+server.post(
+    "/api/login",
+    async function (
+        req,
+        res
+    ) {
 
-    try {
+        try {
 
-        const {
-            username,
-            password
-        } = req.body;
-
-
-        if (!username || !password) {
-
-            return res.status(400).json({
-
-                message:
-                    "Please enter your username/email and password."
-
-            });
-
-        }
+            const {
+                username,
+                password
+            } = req.body;
 
 
-        const user =
-            await User.findOne({
+            // ------------------------------
+            // VALIDATE
+            // ------------------------------
 
-                $or: [
+            if (
+                !username ||
+                !password
+            ) {
+
+                return res.status(
+                    400
+                ).json({
+
+                    message:
+                        "Please enter your username/email and password."
+
+                });
+
+            }
+
+
+            // ------------------------------
+            // FIND USER
+            // ------------------------------
+
+            const user =
+                await User.findOne({
+
+                    $or: [
+
+                        {
+                            username:
+                                username
+                        },
+
+                        {
+                            email:
+                                username.toLowerCase()
+                        }
+
+                    ]
+
+                });
+
+
+            if (!user) {
+
+                return res.status(
+                    401
+                ).json({
+
+                    message:
+                        "Invalid username/email or password."
+
+                });
+
+            }
+
+
+            // ------------------------------
+            // CHECK PASSWORD
+            // ------------------------------
+
+            const passwordMatch =
+                await bcrypt.compare(
+                    password,
+                    user.password
+                );
+
+
+            if (
+                !passwordMatch
+            ) {
+
+                return res.status(
+                    401
+                ).json({
+
+                    message:
+                        "Invalid username/email or password."
+
+                });
+
+            }
+
+
+            // ------------------------------
+            // CREATE TOKEN
+            // ------------------------------
+
+            const token =
+                jwt.sign(
 
                     {
-                        username: username
+
+                        userId:
+                            user._id,
+
+                        username:
+                            user.username,
+
+                        email:
+                            user.email
+
                     },
 
+                    process.env.JWT_SECRET,
+
                     {
-                        email:
-                            username.toLowerCase()
+
+                        expiresIn:
+                            "30d"
+
                     }
 
-                ]
-
-            });
+                );
 
 
-        if (!user) {
+            // ------------------------------
+            // RESPONSE
+            // ------------------------------
 
-            return res.status(401).json({
-
-                message:
-                    "Invalid username/email or password."
-
-            });
-
-        }
-
-
-        const passwordMatch =
-            await bcrypt.compare(
-                password,
-                user.password
-            );
-
-
-        if (!passwordMatch) {
-
-            return res.status(401).json({
+            res.json({
 
                 message:
-                    "Invalid username/email or password."
+                    "Login successful.",
 
-            });
+                token:
+                    token,
 
-        }
-
-
-        const token =
-            jwt.sign(
-
-                {
-
-                    userId:
-                        user._id,
+                user: {
 
                     username:
                         user.username,
@@ -460,155 +887,92 @@ server.post("/api/login", async function (req, res) {
                     email:
                         user.email
 
-                },
-
-                process.env.JWT_SECRET,
-
-                {
-
-                    expiresIn:
-                        "30d"
-
                 }
 
+            });
+
+
+        } catch (error) {
+
+            console.error(
+                "Login error:",
+                error
             );
 
 
-        res.json({
+            res.status(
+                500
+            ).json({
 
-            message:
-                "Login successful.",
+                message:
+                    "Server error."
 
-            token:
-                token,
+            });
 
-            user: {
-
-                username:
-                    user.username,
-
-                email:
-                    user.email
-
-            }
-
-        });
-
-
-    } catch (error) {
-
-        console.error(
-            "Login error:",
-            error
-        );
-
-
-        res.status(500).json({
-
-            message:
-                "Server error."
-
-        });
+        }
 
     }
-
-});
+);
 
 
 // ======================================================
 // VERIFY LOGIN
 // ======================================================
 
-server.get("/api/me", async function (req, res) {
+server.get(
+    "/api/me",
+    async function (
+        req,
+        res
+    ) {
 
-    try {
+        try {
 
-        const authHeader =
-            req.headers.authorization;
+            const {
+                user
+            } =
+                await authenticateUser(
+                    req
+                );
 
 
-        if (!authHeader) {
+            const safeUser =
+                await User.findById(
+                    user._id
+                ).select(
+                    "-password"
+                );
 
-            return res.status(401).json({
 
-                loggedIn: false,
+            res.json({
+
+                loggedIn:
+                    true,
+
+                user:
+                    safeUser
+
+            });
+
+
+        } catch (error) {
+
+            res.status(
+                401
+            ).json({
+
+                loggedIn:
+                    false,
 
                 message:
-                    "Not logged in."
+                    "Invalid or expired login."
 
             });
 
         }
-
-
-        const token =
-            authHeader.split(" ")[1];
-
-
-        if (!token) {
-
-            return res.status(401).json({
-
-                loggedIn: false,
-
-                message:
-                    "No token provided."
-
-            });
-
-        }
-
-
-        const decoded =
-            jwt.verify(
-                token,
-                process.env.JWT_SECRET
-            );
-
-
-        const user =
-            await User.findById(
-                decoded.userId
-            ).select("-password");
-
-
-        if (!user) {
-
-            return res.status(401).json({
-
-                loggedIn: false,
-
-                message:
-                    "User no longer exists."
-
-            });
-
-        }
-
-
-        res.json({
-
-            loggedIn: true,
-
-            user: user
-
-        });
-
-
-    } catch (error) {
-
-        res.status(401).json({
-
-            loggedIn: false,
-
-            message:
-                "Invalid or expired login."
-
-        });
 
     }
-
-});
+);
 
 
 // ======================================================
@@ -622,112 +986,81 @@ server.post(
     upload.fields([
 
         {
-            name: "app-logo",
+            name:
+                "app-logo",
 
-            maxCount: 1
-
-        },
-
-        {
-            name: "app-file",
-
-            maxCount: 1
+            maxCount:
+                1
 
         },
 
         {
-            name: "screenshots[]",
+            name:
+                "app-file",
 
-            maxCount: 5
+            maxCount:
+                1
+
+        },
+
+        {
+            name:
+                "screenshots[]",
+
+            maxCount:
+                5
 
         }
 
     ]),
 
-
-    async function (req, res) {
+    async function (
+        req,
+        res
+    ) {
 
         try {
 
-            // ==================================================
-            // CHECK LOGIN
-            // ==================================================
+            // ------------------------------
+            // AUTHENTICATE
+            // ------------------------------
 
-            const authHeader =
-                req.headers.authorization;
-
-
-            if (!authHeader) {
-
-                return res.status(401).json({
-
-                    message:
-                        "You must be logged in to upload an app."
-
-                });
-
-            }
-
-
-            const token =
-                authHeader.split(" ")[1];
-
-
-            if (!token) {
-
-                return res.status(401).json({
-
-                    message:
-                        "No token provided."
-
-                });
-
-            }
-
-
-            const decoded =
-                jwt.verify(
-                    token,
-                    process.env.JWT_SECRET
+            const {
+                user
+            } =
+                await authenticateUser(
+                    req
                 );
 
 
-            const user =
-                await User.findById(
-                    decoded.userId
-                );
-
-
-            if (!user) {
-
-                return res.status(401).json({
-
-                    message:
-                        "User not found."
-
-                });
-
-            }
-
-
-            // ==================================================
+            // ------------------------------
             // APP INFORMATION
-            // ==================================================
+            // ------------------------------
 
             const name =
-                req.body["app-name"];
+                req.body[
+                    "app-name"
+                ];
 
             const developer =
-                req.body["app-developer"];
+                req.body[
+                    "app-developer"
+                ];
 
             const version =
-                req.body["app-version"];
+                req.body[
+                    "app-version"
+                ];
 
             const category =
-                req.body["app-category"];
+                req.body[
+                    "app-category"
+                ];
 
             const description =
-                req.body["app-description"];
+                req.body[
+                    "app-description"
+                ];
 
 
             if (
@@ -738,7 +1071,9 @@ server.post(
                 !description
             ) {
 
-                return res.status(400).json({
+                return res.status(
+                    400
+                ).json({
 
                     message:
                         "Please provide all app information."
@@ -748,17 +1083,23 @@ server.post(
             }
 
 
-            // ==================================================
+            // ------------------------------
             // CHECK LOGO
-            // ==================================================
+            // ------------------------------
 
             if (
                 !req.files ||
-                !req.files["app-logo"] ||
-                req.files["app-logo"].length === 0
+                !req.files[
+                    "app-logo"
+                ] ||
+                req.files[
+                    "app-logo"
+                ].length === 0
             ) {
 
-                return res.status(400).json({
+                return res.status(
+                    400
+                ).json({
 
                     message:
                         "Please upload an app logo."
@@ -768,70 +1109,85 @@ server.post(
             }
 
 
-            // ==================================================
-            // CHECK APK
-            // ==================================================
+            // ------------------------------
+            // CHECK APP FILE
+            // ------------------------------
 
             if (
                 !req.files ||
-                !req.files["app-file"] ||
-                req.files["app-file"].length === 0
+                !req.files[
+                    "app-file"
+                ] ||
+                req.files[
+                    "app-file"
+                ].length === 0
             ) {
 
-                return res.status(400).json({
+                return res.status(
+                    400
+                ).json({
 
                     message:
-                        "Please upload an APK file."
+                        "Please upload an app file."
 
                 });
 
             }
 
 
+            // ------------------------------
+            // GET FILES
+            // ------------------------------
+
             const logoFile =
-                req.files["app-logo"][0];
+                req.files[
+                    "app-logo"
+                ][0];
+
+            const appFile =
+                req.files[
+                    "app-file"
+                ][0];
 
 
-            const apkFile =
-                req.files["app-file"][0];
-
-
-            // ==================================================
+            // ------------------------------
             // LOGO URL
-            // ==================================================
+            // ------------------------------
 
             const logo =
                 `/uploads/logos/${logoFile.filename}`;
 
 
-            // ==================================================
-            // APK URL
-            // ==================================================
+            // ------------------------------
+            // APP FILE URL
+            // ------------------------------
 
-            const apk =
-                `/uploads/apks/${apkFile.filename}`;
+            const appFileUrl =
+                `/uploads/apks/${appFile.filename}`;
 
 
-            // ==================================================
+            // ------------------------------
             // SCREENSHOTS
-            // ==================================================
+            // ------------------------------
 
             const screenshots = [];
 
 
             if (
-                req.files["screenshots[]"]
+                req.files[
+                    "screenshots[]"
+                ]
             ) {
 
                 for (
                     const file
-                    of req.files["screenshots[]"]
+                    of req.files[
+                        "screenshots[]"
+                    ]
                 ) {
 
                     screenshots.push(
-
                         `/uploads/screenshots/${file.filename}`
-
                     );
 
                 }
@@ -839,33 +1195,37 @@ server.post(
             }
 
 
-            // ==================================================
+            // ------------------------------
             // CREATE APP
-            // ==================================================
+            // ------------------------------
 
             const newApp =
                 new App({
 
                     name:
-                        name,
+                        name.trim(),
 
                     developer:
-                        developer,
+                        developer.trim(),
 
                     version:
-                        version,
+                        version.trim(),
 
                     category:
                         category,
 
                     description:
-                        description,
+                        description.trim(),
 
                     logo:
                         logo,
 
+                    // Keep this field name
+                    // because your current
+                    // MongoDB schema uses it.
+
                     apkFile:
-                        apk,
+                        appFileUrl,
 
                     screenshots:
                         screenshots,
@@ -879,11 +1239,13 @@ server.post(
             await newApp.save();
 
 
-            // ==================================================
+            // ------------------------------
             // RESPONSE
-            // ==================================================
+            // ------------------------------
 
-            res.status(201).json({
+            res.status(
+                201
+            ).json({
 
                 message:
                     "App uploaded successfully!",
@@ -903,10 +1265,47 @@ server.post(
 
 
             if (
-                error instanceof multer.MulterError
+                error.message ===
+                "AUTH_REQUIRED"
             ) {
 
-                return res.status(400).json({
+                return res.status(
+                    401
+                ).json({
+
+                    message:
+                        "You must be logged in to upload an app."
+
+                });
+
+            }
+
+
+            if (
+                error.message ===
+                "USER_NOT_FOUND"
+            ) {
+
+                return res.status(
+                    401
+                ).json({
+
+                    message:
+                        "User not found."
+
+                });
+
+            }
+
+
+            if (
+                error instanceof
+                multer.MulterError
+            ) {
+
+                return res.status(
+                    400
+                ).json({
 
                     message:
                         `Upload error: ${error.message}`
@@ -916,9 +1315,13 @@ server.post(
             }
 
 
-            if (error.message) {
+            if (
+                error.message
+            ) {
 
-                return res.status(400).json({
+                return res.status(
+                    400
+                ).json({
 
                     message:
                         error.message
@@ -928,7 +1331,9 @@ server.post(
             }
 
 
-            res.status(500).json({
+            res.status(
+                500
+            ).json({
 
                 message:
                     "Server error."
@@ -946,439 +1351,480 @@ server.post(
 // GET ALL APPS
 // ======================================================
 
-server.get("/api/apps", async function (req, res) {
+server.get(
+    "/api/apps",
+    async function (
+        req,
+        res
+    ) {
 
-    try {
+        try {
 
-        const apps =
-            await App.find()
-                .sort({
-                    createdAt: -1
-                });
+            const apps =
+                await App.find()
+                    .sort({
 
+                        createdAt:
+                            -1
 
-        res.json({
-
-            apps:
-                apps
-
-        });
-
-
-    } catch (error) {
-
-        console.error(
-            "Get apps error:",
-            error
-        );
+                    });
 
 
-        res.status(500).json({
+            res.json({
 
-            message:
-                "Failed to get apps."
+                apps:
+                    apps
 
-        });
+            });
+
+
+        } catch (error) {
+
+            console.error(
+                "Get apps error:",
+                error
+            );
+
+
+            res.status(
+                500
+            ).json({
+
+                message:
+                    "Failed to get apps."
+
+            });
+
+        }
 
     }
-
-});
+);
 
 
 // ======================================================
 // GET MY APPS
 // ======================================================
 
-server.get("/api/apps/my-apps", async function (req, res) {
+server.get(
+    "/api/apps/my-apps",
+    async function (
+        req,
+        res
+    ) {
 
-    try {
+        try {
 
-        const authHeader =
-            req.headers.authorization;
+            const {
+                user
+            } =
+                await authenticateUser(
+                    req
+                );
 
-        if (!authHeader) {
 
-            return res.status(401).json({
-                message: "Not logged in."
+            const apps =
+                await App.find({
+
+                    uploadedBy:
+                        user._id
+
+                }).sort({
+
+                    createdAt:
+                        -1
+
+                });
+
+
+            res.json({
+
+                apps:
+                    apps
+
             });
 
-        }
 
-        const token =
-            authHeader.split(" ")[1];
+        } catch (error) {
 
-        if (!token) {
-
-            return res.status(401).json({
-                message: "No token provided."
-            });
-
-        }
-
-        const decoded =
-            jwt.verify(
-                token,
-                process.env.JWT_SECRET
+            console.error(
+                "Get my apps error:",
+                error
             );
 
-        const apps =
-            await App.find({
-                uploadedBy: decoded.userId
-            }).sort({
-                createdAt: -1
+
+            res.status(
+                401
+            ).json({
+
+                message:
+                    "Invalid or expired login."
+
             });
 
-        res.json({
-            apps: apps
-        });
-
-    } catch (error) {
-
-        console.error(
-            "Get my apps error:",
-            error
-        );
-
-        res.status(500).json({
-            message: "Failed to get your apps."
-        });
+        }
 
     }
+);
 
-});
 
-// ================================
+// ======================================================
 // GET MY REVIEWS
-// ================================
+// ======================================================
 
-server.get("/api/my-reviews", async (req, res) => {
+server.get(
+    "/api/my-reviews",
+    async function (
+        req,
+        res
+    ) {
 
-    try {
+        try {
 
-        const authHeader =
-            req.headers.authorization;
+            const {
+                user
+            } =
+                await authenticateUser(
+                    req
+                );
 
-        if (!authHeader) {
 
-            return res.status(401).json({
-                message: "Not logged in."
+            const reviews =
+                await Review.find({
+
+                    user:
+                        user._id
+
+                }).sort({
+
+                    createdAt:
+                        -1
+
+                });
+
+
+            res.json({
+
+                reviews:
+                    reviews
+
             });
 
-        }
 
+        } catch (error) {
 
-        const token =
-            authHeader.split(" ")[1];
-
-        if (!token) {
-
-            return res.status(401).json({
-                message: "No token provided."
-            });
-
-        }
-
-
-        const decoded =
-            jwt.verify(
-                token,
-                process.env.JWT_SECRET
+            console.error(
+                "Get my reviews error:",
+                error
             );
 
 
-        const user =
-            await User.findById(
-                decoded.userId
-            );
+            res.status(
+                401
+            ).json({
 
-        if (!user) {
+                message:
+                    "Invalid or expired login."
 
-            return res.status(401).json({
-                message: "User not found."
             });
 
         }
-
-
-        const reviews =
-            await Review.find({
-                user: user._id
-            }).sort({
-                createdAt: -1
-            });
-
-
-        res.json({
-            reviews: reviews
-        });
-
-
-    } catch (error) {
-
-        console.error(
-            "Get my reviews error:",
-            error
-        );
-
-        res.status(500).json({
-            message: "Failed to get your reviews."
-        });
 
     }
+);
 
-});
 
 // ======================================================
 // GET ONE APP
 // ======================================================
 
-server.get("/api/apps/:id", async function (req, res) {
+server.get(
+    "/api/apps/:id",
+    async function (
+        req,
+        res
+    ) {
 
-    try {
+        try {
 
-        const appData =
-            await App.findById(
-                req.params.id
+            const appData =
+                await App.findById(
+                    req.params.id
+                );
+
+
+            if (!appData) {
+
+                return res.status(
+                    404
+                ).json({
+
+                    message:
+                        "App not found."
+
+                });
+
+            }
+
+
+            res.json({
+
+                app:
+                    appData
+
+            });
+
+
+        } catch (error) {
+
+            console.error(
+                "Get app error:",
+                error
             );
 
 
-        if (!appData) {
-
-            return res.status(404).json({
+            res.status(
+                500
+            ).json({
 
                 message:
-                    "App not found."
+                    "Failed to get app."
 
             });
 
         }
 
-
-        // ==================================================
-        // GET ACTUAL APK FILE SIZE
-        // ==================================================
-
-        let appSize = "Unknown";
-
-
-        if (appData.apkFile) {
-
-            const apkFilename =
-                path.basename(
-                    appData.apkFile
-                );
-
-
-            const apkPath =
-                path.join(
-                    apkDir,
-                    apkFilename
-                );
-
-
-            if (fs.existsSync(apkPath)) {
-
-                const stats =
-                    fs.statSync(apkPath);
-
-
-                const sizeInBytes =
-                    stats.size;
-
-
-                const sizeInKB =
-                    sizeInBytes / 1024;
-
-
-                const sizeInMB =
-                    sizeInBytes /
-                    (1024 * 1024);
-
-
-                if (sizeInMB >= 1) {
-
-                    appSize =
-                        `${sizeInMB.toFixed(1)} MB`;
-
-                } else {
-
-                    appSize =
-                        `${sizeInKB.toFixed(1)} KB`;
-
-                }
-
-            }
-
-        }
-
-
-        // ==================================================
-        // SEND APP DATA
-        // ==================================================
-
-        res.json({
-
-            app: {
-
-                ...appData.toObject(),
-
-                size:
-                    appSize
-
-            }
-
-        });
-
-
-    } catch (error) {
-
-        console.error(
-            "Get app error:",
-            error
-        );
-
-
-        res.status(500).json({
-
-            message:
-                "Failed to get app."
-
-        });
-
     }
+);
 
-});
 
 // ======================================================
 // DELETE APP
 // ======================================================
 
-server.delete("/api/apps/:id", async function (req, res) {
+server.delete(
+    "/api/apps/:id",
+    async function (
+        req,
+        res
+    ) {
 
-    try {
+        try {
 
-        const authHeader =
-            req.headers.authorization;
-
-        if (!authHeader) {
-            return res.status(401).json({
-                message: "Not logged in."
-            });
-        }
-
-        const token =
-            authHeader.split(" ")[1];
-
-        if (!token) {
-            return res.status(401).json({
-                message: "No token provided."
-            });
-        }
-
-        const decoded =
-            jwt.verify(
-                token,
-                process.env.JWT_SECRET
-            );
-
-        const appData =
-            await App.findById(req.params.id);
-
-        if (!appData) {
-            return res.status(404).json({
-                message: "App not found."
-            });
-        }
-
-        // Make sure the user owns this app
-        if (
-            appData.uploadedBy.toString() !==
-            decoded.userId.toString()
-        ) {
-            return res.status(403).json({
-                message:
-                    "You can only delete your own apps."
-            });
-        }
-
-        // Delete logo
-        if (appData.logo) {
-
-            const logoPath =
-                path.join(
-                    logoDir,
-                    path.basename(appData.logo)
+            const {
+                user
+            } =
+                await authenticateUser(
+                    req
                 );
 
-            if (fs.existsSync(logoPath)) {
-                fs.unlinkSync(logoPath);
-            }
-        }
 
-        // Delete APK
-        if (appData.apkFile) {
-
-            const apkPath =
-                path.join(
-                    apkDir,
-                    path.basename(appData.apkFile)
+            const appData =
+                await App.findById(
+                    req.params.id
                 );
 
-            if (fs.existsSync(apkPath)) {
-                fs.unlinkSync(apkPath);
+
+            if (!appData) {
+
+                return res.status(
+                    404
+                ).json({
+
+                    message:
+                        "App not found."
+
+                });
+
             }
-        }
 
-        // Delete screenshots
-        if (Array.isArray(appData.screenshots)) {
 
-            for (
-                const screenshot
-                of appData.screenshots
+            // ------------------------------
+            // CHECK OWNERSHIP
+            // ------------------------------
+
+            if (
+                appData.uploadedBy
+                    .toString() !==
+                user._id.toString()
             ) {
 
-                const screenshotPath =
+                return res.status(
+                    403
+                ).json({
+
+                    message:
+                        "You can only delete your own apps."
+
+                });
+
+            }
+
+
+            // ------------------------------
+            // DELETE LOGO
+            // ------------------------------
+
+            if (
+                appData.logo
+            ) {
+
+                const logoPath =
                     path.join(
-                        screenshotDir,
-                        path.basename(screenshot)
+
+                        logoDir,
+
+                        path.basename(
+                            appData.logo
+                        )
+
                     );
 
-                if (fs.existsSync(screenshotPath)) {
-                    fs.unlinkSync(screenshotPath);
+
+                if (
+                    fs.existsSync(
+                        logoPath
+                    )
+                ) {
+
+                    fs.unlinkSync(
+                        logoPath
+                    );
+
                 }
 
             }
+
+
+            // ------------------------------
+            // DELETE APP FILE
+            // ------------------------------
+
+            if (
+                appData.apkFile
+            ) {
+
+                const appFilePath =
+                    path.join(
+
+                        apkDir,
+
+                        path.basename(
+                            appData.apkFile
+                        )
+
+                    );
+
+
+                if (
+                    fs.existsSync(
+                        appFilePath
+                    )
+                ) {
+
+                    fs.unlinkSync(
+                        appFilePath
+                    );
+
+                }
+
+            }
+
+
+            // ------------------------------
+            // DELETE SCREENSHOTS
+            // ------------------------------
+
+            if (
+                Array.isArray(
+                    appData.screenshots
+                )
+            ) {
+
+                for (
+                    const screenshot
+                    of appData.screenshots
+                ) {
+
+                    const screenshotPath =
+                        path.join(
+
+                            screenshotDir,
+
+                            path.basename(
+                                screenshot
+                            )
+
+                        );
+
+
+                    if (
+                        fs.existsSync(
+                            screenshotPath
+                        )
+                    ) {
+
+                        fs.unlinkSync(
+                            screenshotPath
+                        );
+
+                    }
+
+                }
+
+            }
+
+
+            // ------------------------------
+            // DELETE REVIEWS
+            // ------------------------------
+
+            await Review.deleteMany({
+
+                app:
+                    appData._id
+
+            });
+
+
+            // ------------------------------
+            // DELETE APP
+            // ------------------------------
+
+            await App.findByIdAndDelete(
+                appData._id
+            );
+
+
+            res.json({
+
+                message:
+                    "App deleted successfully."
+
+            });
+
+
+        } catch (error) {
+
+            console.error(
+                "Delete app error:",
+                error
+            );
+
+
+            res.status(
+                500
+            ).json({
+
+                message:
+                    "Failed to delete app."
+
+            });
+
         }
 
-        // Delete reviews belonging to the app
-        await Review.deleteMany({
-            app: appData._id
-        });
-
-        // Delete app from MongoDB
-        await App.findByIdAndDelete(
-            appData._id
-        );
-
-        res.json({
-            message:
-                "App deleted successfully."
-        });
-
-    } catch (error) {
-
-        console.error(
-            "Delete app error:",
-            error
-        );
-
-        res.status(500).json({
-            message:
-                "Failed to delete app."
-        });
     }
+);
 
-});
 
 // ======================================================
 // EDIT APP
@@ -1391,87 +1837,86 @@ server.put(
     upload.fields([
 
         {
-            name: "app-logo",
-            maxCount: 1
+            name:
+                "app-logo",
+
+            maxCount:
+                1
+
         },
 
         {
-            name: "app-file",
-            maxCount: 1
+            name:
+                "app-file",
+
+            maxCount:
+                1
+
         },
 
         {
-            name: "screenshots[]",
-            maxCount: 5
+            name:
+                "screenshots[]",
+
+            maxCount:
+                5
+
         }
 
     ]),
 
-    async function (req, res) {
+    async function (
+        req,
+        res
+    ) {
 
         try {
 
-            // ==================================================
-            // CHECK LOGIN
-            // ==================================================
-
-            const authHeader =
-                req.headers.authorization;
-
-            if (!authHeader) {
-
-                return res.status(401).json({
-                    message: "Not logged in."
-                });
-
-            }
-
-            const token =
-                authHeader.split(" ")[1];
-
-            if (!token) {
-
-                return res.status(401).json({
-                    message: "No token provided."
-                });
-
-            }
-
-            const decoded =
-                jwt.verify(
-                    token,
-                    process.env.JWT_SECRET
+            const {
+                user
+            } =
+                await authenticateUser(
+                    req
                 );
 
 
-            // ==================================================
+            // ------------------------------
             // FIND APP
-            // ==================================================
+            // ------------------------------
 
             const appData =
                 await App.findById(
                     req.params.id
                 );
 
+
             if (!appData) {
 
-                return res.status(404).json({
-                    message: "App not found."
+                return res.status(
+                    404
+                ).json({
+
+                    message:
+                        "App not found."
+
                 });
 
             }
 
 
-            // ==================================================
+            // ------------------------------
             // CHECK OWNERSHIP
-            // ==================================================
+            // ------------------------------
 
             if (
-                appData.uploadedBy.toString() !==
-                decoded.userId.toString()
+                appData.uploadedBy
+                    .toString() !==
+                user._id.toString()
             ) {
 
-                return res.status(403).json({
+                return res.status(
+                    403
+                ).json({
 
                     message:
                         "You can only edit your own apps."
@@ -1481,24 +1926,34 @@ server.put(
             }
 
 
-            // ==================================================
-            // GET APP INFORMATION
-            // ==================================================
+            // ------------------------------
+            // GET INFORMATION
+            // ------------------------------
 
             const name =
-                req.body["app-name"];
+                req.body[
+                    "app-name"
+                ];
 
             const developer =
-                req.body["app-developer"];
+                req.body[
+                    "app-developer"
+                ];
 
             const version =
-                req.body["app-version"];
+                req.body[
+                    "app-version"
+                ];
 
             const category =
-                req.body["app-category"];
+                req.body[
+                    "app-category"
+                ];
 
             const description =
-                req.body["app-description"];
+                req.body[
+                    "app-description"
+                ];
 
 
             if (
@@ -1509,7 +1964,9 @@ server.put(
                 !description
             ) {
 
-                return res.status(400).json({
+                return res.status(
+                    400
+                ).json({
 
                     message:
                         "Please provide all app information."
@@ -1519,24 +1976,24 @@ server.put(
             }
 
 
-            // ==================================================
-            // UPDATE TEXT INFORMATION
-            // ==================================================
+            // ------------------------------
+            // UPDATE TEXT
+            // ------------------------------
 
             appData.name =
-                name;
+                name.trim();
 
             appData.developer =
-                developer;
+                developer.trim();
 
             appData.version =
-                version;
+                version.trim();
 
             appData.category =
                 category;
 
             appData.description =
-                description;
+                description.trim();
 
 
             // ==================================================
@@ -1545,32 +2002,48 @@ server.put(
 
             if (
                 req.files &&
-                req.files["app-logo"] &&
-                req.files["app-logo"].length > 0
+                req.files[
+                    "app-logo"
+                ] &&
+                req.files[
+                    "app-logo"
+                ].length > 0
             ) {
 
                 const oldLogo =
                     appData.logo;
 
+
                 const newLogoFile =
-                    req.files["app-logo"][0];
+                    req.files[
+                        "app-logo"
+                    ][0];
+
 
                 appData.logo =
                     `/uploads/logos/${newLogoFile.filename}`;
 
 
-                // Delete old logo
-
-                if (oldLogo) {
+                if (
+                    oldLogo
+                ) {
 
                     const oldLogoPath =
                         path.join(
+
                             logoDir,
-                            path.basename(oldLogo)
+
+                            path.basename(
+                                oldLogo
+                            )
+
                         );
 
+
                     if (
-                        fs.existsSync(oldLogoPath)
+                        fs.existsSync(
+                            oldLogoPath
+                        )
                     ) {
 
                         fs.unlinkSync(
@@ -1585,41 +2058,57 @@ server.put(
 
 
             // ==================================================
-            // REPLACE APK
+            // REPLACE APP FILE
             // ==================================================
 
             if (
                 req.files &&
-                req.files["app-file"] &&
-                req.files["app-file"].length > 0
+                req.files[
+                    "app-file"
+                ] &&
+                req.files[
+                    "app-file"
+                ].length > 0
             ) {
 
-                const oldAPK =
+                const oldAppFile =
                     appData.apkFile;
 
-                const newAPKFile =
-                    req.files["app-file"][0];
+
+                const newAppFile =
+                    req.files[
+                        "app-file"
+                    ][0];
+
 
                 appData.apkFile =
-                    `/uploads/apks/${newAPKFile.filename}`;
+                    `/uploads/apks/${newAppFile.filename}`;
 
 
-                // Delete old APK
+                if (
+                    oldAppFile
+                ) {
 
-                if (oldAPK) {
-
-                    const oldAPKPath =
+                    const oldAppFilePath =
                         path.join(
+
                             apkDir,
-                            path.basename(oldAPK)
+
+                            path.basename(
+                                oldAppFile
+                            )
+
                         );
 
+
                     if (
-                        fs.existsSync(oldAPKPath)
+                        fs.existsSync(
+                            oldAppFilePath
+                        )
                     ) {
 
                         fs.unlinkSync(
-                            oldAPKPath
+                            oldAppFilePath
                         );
 
                     }
@@ -1635,11 +2124,17 @@ server.put(
 
             if (
                 req.files &&
-                req.files["screenshots[]"] &&
-                req.files["screenshots[]"].length > 0
+                req.files[
+                    "screenshots[]"
+                ] &&
+                req.files[
+                    "screenshots[]"
+                ].length > 0
             ) {
 
-                // Delete old screenshots
+                // ------------------------------
+                // DELETE OLD SCREENSHOTS
+                // ------------------------------
 
                 if (
                     Array.isArray(
@@ -1654,11 +2149,15 @@ server.put(
 
                         const oldScreenshotPath =
                             path.join(
+
                                 screenshotDir,
+
                                 path.basename(
                                     screenshot
                                 )
+
                             );
+
 
                         if (
                             fs.existsSync(
@@ -1677,13 +2176,18 @@ server.put(
                 }
 
 
-                // Add new screenshots
+                // ------------------------------
+                // SAVE NEW SCREENSHOTS
+                // ------------------------------
 
                 const newScreenshots = [];
 
+
                 for (
                     const file
-                    of req.files["screenshots[]"]
+                    of req.files[
+                        "screenshots[]"
+                    ]
                 ) {
 
                     newScreenshots.push(
@@ -1694,22 +2198,19 @@ server.put(
 
                 }
 
+
                 appData.screenshots =
                     newScreenshots;
 
             }
 
 
-            // ==================================================
-            // SAVE CHANGES
-            // ==================================================
+            // ------------------------------
+            // SAVE
+            // ------------------------------
 
             await appData.save();
 
-
-            // ==================================================
-            // RESPONSE
-            // ==================================================
 
             res.json({
 
@@ -1731,10 +2232,13 @@ server.put(
 
 
             if (
-                error instanceof multer.MulterError
+                error instanceof
+                multer.MulterError
             ) {
 
-                return res.status(400).json({
+                return res.status(
+                    400
+                ).json({
 
                     message:
                         `Upload error: ${error.message}`
@@ -1744,7 +2248,25 @@ server.put(
             }
 
 
-            res.status(500).json({
+            if (
+                error.message
+            ) {
+
+                return res.status(
+                    400
+                ).json({
+
+                    message:
+                        error.message
+
+                });
+
+            }
+
+
+            res.status(
+                500
+            ).json({
 
                 message:
                     "Failed to update app."
@@ -1757,6 +2279,7 @@ server.put(
 
 );
 
+
 // ======================================================
 // SUBMIT REVIEW
 // ======================================================
@@ -1765,66 +2288,24 @@ server.post(
 
     "/api/apps/:id/reviews",
 
-    async function (req, res) {
+    async function (
+        req,
+        res
+    ) {
 
         try {
 
-            const authHeader =
-                req.headers.authorization;
-
-
-            if (!authHeader) {
-
-                return res.status(401).json({
-
-                    message:
-                        "You must be logged in to review this app."
-
-                });
-
-            }
-
-
-            const token =
-                authHeader.split(" ")[1];
-
-
-            if (!token) {
-
-                return res.status(401).json({
-
-                    message:
-                        "No token provided."
-
-                });
-
-            }
-
-
-            const decoded =
-                jwt.verify(
-                    token,
-                    process.env.JWT_SECRET
+            const {
+                user
+            } =
+                await authenticateUser(
+                    req
                 );
 
 
-            const user =
-                await User.findById(
-                    decoded.userId
-                );
-
-
-            if (!user) {
-
-                return res.status(401).json({
-
-                    message:
-                        "User not found."
-
-                });
-
-            }
-
+            // ------------------------------
+            // FIND APP
+            // ------------------------------
 
             const appData =
                 await App.findById(
@@ -1834,7 +2315,9 @@ server.post(
 
             if (!appData) {
 
-                return res.status(404).json({
+                return res.status(
+                    404
+                ).json({
 
                     message:
                         "App not found."
@@ -1844,6 +2327,10 @@ server.post(
             }
 
 
+            // ------------------------------
+            // REVIEW DATA
+            // ------------------------------
+
             const {
                 rating,
                 comment
@@ -1851,12 +2338,16 @@ server.post(
 
 
             if (
-                rating === undefined ||
+                rating ===
+                    undefined ||
                 !comment ||
-                comment.trim() === ""
+                comment.trim() ===
+                    ""
             ) {
 
-                return res.status(400).json({
+                return res.status(
+                    400
+                ).json({
 
                     message:
                         "Please provide a rating and review."
@@ -1867,15 +2358,22 @@ server.post(
 
 
             const numericRating =
-                Number(rating);
+                Number(
+                    rating
+                );
 
 
             if (
+                !Number.isFinite(
+                    numericRating
+                ) ||
                 numericRating < 1 ||
                 numericRating > 5
             ) {
 
-                return res.status(400).json({
+                return res.status(
+                    400
+                ).json({
 
                     message:
                         "Rating must be between 1 and 5."
@@ -1884,6 +2382,10 @@ server.post(
 
             }
 
+
+            // ------------------------------
+            // CHECK EXISTING REVIEW
+            // ------------------------------
 
             const existingReview =
                 await Review.findOne({
@@ -1897,9 +2399,13 @@ server.post(
                 });
 
 
-            if (existingReview) {
+            if (
+                existingReview
+            ) {
 
-                return res.status(400).json({
+                return res.status(
+                    400
+                ).json({
 
                     message:
                         "You have already reviewed this app."
@@ -1908,6 +2414,10 @@ server.post(
 
             }
 
+
+            // ------------------------------
+            // CREATE REVIEW
+            // ------------------------------
 
             const review =
                 new Review({
@@ -1933,9 +2443,9 @@ server.post(
             await review.save();
 
 
-            // ==================================================
+            // ------------------------------
             // RECALCULATE RATING
-            // ==================================================
+            // ------------------------------
 
             const allReviews =
                 await Review.find({
@@ -1946,7 +2456,8 @@ server.post(
                 });
 
 
-            let totalRating = 0;
+            let totalRating =
+                0;
 
 
             for (
@@ -1955,26 +2466,42 @@ server.post(
             ) {
 
                 totalRating +=
-                    currentReview.rating;
+                    Number(
+                        currentReview.rating
+                    );
 
             }
 
 
-            const averageRating =
-                totalRating /
-                allReviews.length;
+            if (
+                allReviews.length > 0
+            ) {
+
+                const averageRating =
+                    totalRating /
+                    allReviews.length;
 
 
-            appData.rating =
-                Number(
-                    averageRating.toFixed(1)
-                );
+                appData.rating =
+                    Number(
+                        averageRating.toFixed(
+                            1
+                        )
+                    );
+
+            }
 
 
             await appData.save();
 
 
-            res.status(201).json({
+            // ------------------------------
+            // RESPONSE
+            // ------------------------------
+
+            res.status(
+                201
+            ).json({
 
                 message:
                     "Review submitted successfully.",
@@ -1993,7 +2520,9 @@ server.post(
             );
 
 
-            res.status(500).json({
+            res.status(
+                500
+            ).json({
 
                 message:
                     "Failed to submit review."
@@ -2015,7 +2544,10 @@ server.get(
 
     "/api/apps/:id/reviews",
 
-    async function (req, res) {
+    async function (
+        req,
+        res
+    ) {
 
         try {
 
@@ -2049,7 +2581,9 @@ server.get(
             );
 
 
-            res.status(500).json({
+            res.status(
+                500
+            ).json({
 
                 message:
                     "Failed to get reviews."
@@ -2071,9 +2605,16 @@ server.get(
 
     "/api/apps/:id/download",
 
-    async function (req, res) {
+    async function (
+        req,
+        res
+    ) {
 
         try {
+
+            // ------------------------------
+            // FIND APP
+            // ------------------------------
 
             const appData =
                 await App.findById(
@@ -2083,7 +2624,9 @@ server.get(
 
             if (!appData) {
 
-                return res.status(404).json({
+                return res.status(
+                    404
+                ).json({
 
                     message:
                         "App not found."
@@ -2093,68 +2636,159 @@ server.get(
             }
 
 
-            // ==================================================
-            // GET APK FILENAME
-            // ==================================================
+            // ------------------------------
+            // CHECK APP FILE
+            // ------------------------------
 
-            const apkFilename =
-                path.basename(
-                    appData.apkFile
-                );
+            if (
+                !appData.apkFile
+            ) {
 
-
-            const filePath =
-                path.join(
-                    apkDir,
-                    apkFilename
-                );
-
-
-            // ==================================================
-            // CHECK FILE
-            // ==================================================
-
-            if (!fs.existsSync(filePath)) {
-
-                console.error(
-                    "APK not found:",
-                    filePath
-                );
-
-
-                return res.status(404).json({
+                return res.status(
+                    404
+                ).json({
 
                     message:
-                        "APK file not found."
+                        "App file not found."
 
                 });
 
             }
 
 
-            // ==================================================
-            // INCREASE DOWNLOAD COUNT
-            // ==================================================
+            // ------------------------------
+            // GET FILENAME
+            // ------------------------------
 
-           await App.findByIdAndUpdate(
-    req.params.id,
-    {
-        $inc: {
-            downloads: 1
-        }
-    }
-);
+            const appFilename =
+                path.basename(
+                    appData.apkFile
+                );
 
-            // ==================================================
+
+            // ------------------------------
+            // FILE PATH
+            // ------------------------------
+
+            const filePath =
+                path.join(
+
+                    apkDir,
+
+                    appFilename
+
+                );
+
+
+            // ------------------------------
+            // CHECK FILE
+            // ------------------------------
+
+            if (
+                !fs.existsSync(
+                    filePath
+                )
+            ) {
+
+                console.error(
+                    "App file not found:",
+                    filePath
+                );
+
+
+                return res.status(
+                    404
+                ).json({
+
+                    message:
+                        "App file not found."
+
+                });
+
+            }
+
+
+            // ------------------------------
+            // INCREASE DOWNLOADS
+            // ------------------------------
+
+            appData.downloads =
+                (
+                    appData.downloads ||
+                    0
+                ) + 1;
+
+
+            await appData.save();
+
+
+            // ------------------------------
+            // CONTENT TYPE
+            // ------------------------------
+
+            const extension =
+                path
+                    .extname(
+                        appFilename
+                    )
+                    .toLowerCase();
+
+
+            const contentTypes = {
+
+                ".apk":
+                    "application/vnd.android.package-archive",
+
+                ".exe":
+                    "application/vnd.microsoft.portable-executable",
+
+                ".msi":
+                    "application/x-msi",
+
+                ".deb":
+                    "application/vnd.debian.binary-package",
+
+                ".appimage":
+                    "application/x-executable",
+
+                ".dmg":
+                    "application/x-apple-diskimage",
+
+                ".app":
+                    "application/octet-stream"
+
+            };
+
+
+            res.setHeader(
+
+                "Content-Type",
+
+                contentTypes[
+                    extension
+                ] ||
+                "application/octet-stream"
+
+            );
+
+
+            // ------------------------------
             // DOWNLOAD
-            // ==================================================
+            // ------------------------------
 
             res.download(
-                filePath,
-                apkFilename,
-                function (error) {
 
-                    if (error) {
+                filePath,
+
+                appFilename,
+
+                function (
+                    error
+                ) {
+
+                    if (
+                        error
+                    ) {
 
                         console.error(
                             "File download error:",
@@ -2164,6 +2798,7 @@ server.get(
                     }
 
                 }
+
             );
 
 
@@ -2175,12 +2810,20 @@ server.get(
             );
 
 
-            res.status(500).json({
+            if (
+                !res.headersSent
+            ) {
 
-                message:
-                    "Failed to download app."
+                res.status(
+                    500
+                ).json({
 
-            });
+                    message:
+                        "Failed to download app."
+
+                });
+
+            }
 
         }
 
@@ -2188,13 +2831,17 @@ server.get(
 
 );
 
+
 // ======================================================
 // LOGOUT
 // ======================================================
 
 server.post(
     "/api/logout",
-    function (req, res) {
+    function (
+        req,
+        res
+    ) {
 
         res.json({
 
@@ -2208,27 +2855,64 @@ server.post(
 
 
 // ======================================================
-// HOME TEST
+// HOME / SERVER TEST
 // ======================================================
 
 server.get(
     "/",
-    function (req, res) {
+    function (
+        req,
+        res
+    ) {
 
-        res.send(
-            "Tekohub backend is running"
-        );
+        res.json({
+
+            status:
+                "online",
+
+            message:
+                "Tekohub backend is running."
+
+        });
 
     }
 );
 
 
 // ======================================================
-// MULTER / UPLOAD ERROR HANDLER
+// 404 HANDLER
 // ======================================================
 
 server.use(
-    function (error, req, res, next) {
+    function (
+        req,
+        res
+    ) {
+
+        res.status(
+            404
+        ).json({
+
+            message:
+                "API route not found."
+
+        });
+
+    }
+);
+
+
+// ======================================================
+// GLOBAL ERROR HANDLER
+// ======================================================
+
+server.use(
+    function (
+        error,
+        req,
+        res,
+        next
+    ) {
 
         console.error(
             "Server error:",
@@ -2236,11 +2920,18 @@ server.use(
         );
 
 
+        // ------------------------------
+        // MULTER ERROR
+        // ------------------------------
+
         if (
-            error instanceof multer.MulterError
+            error instanceof
+            multer.MulterError
         ) {
 
-            return res.status(400).json({
+            return res.status(
+                400
+            ).json({
 
                 message:
                     `Upload error: ${error.message}`
@@ -2250,12 +2941,18 @@ server.use(
         }
 
 
+        // ------------------------------
+        // NORMAL ERROR
+        // ------------------------------
+
         if (
             error &&
             error.message
         ) {
 
-            return res.status(400).json({
+            return res.status(
+                400
+            ).json({
 
                 message:
                     error.message
@@ -2265,7 +2962,13 @@ server.use(
         }
 
 
-        res.status(500).json({
+        // ------------------------------
+        // UNKNOWN ERROR
+        // ------------------------------
+
+        res.status(
+            500
+        ).json({
 
             message:
                 "Something went wrong on the server."
@@ -2280,16 +2983,28 @@ server.use(
 // START SERVER
 // ======================================================
 
-const PORT = 3000;
+const PORT =
+    process.env.PORT ||
+    3000;
 
 
-server.listen(
-    PORT,
-    function () {
+async function startServer() {
 
-        console.log(
-            `Server running on http://localhost:${PORT}`
-        );
+    await connectDatabase();
 
-    }
-);
+
+    server.listen(
+        PORT,
+        function () {
+
+            console.log(
+                `Tekohub server running on port ${PORT}`
+            );
+
+        }
+    );
+
+}
+
+
+startServer();
