@@ -74,7 +74,7 @@ try {
 
 function setupUpload() {
 
-```
+
 const uploadForm =
     document.querySelector("#upload-form");
 
@@ -368,42 +368,54 @@ uploadForm.addEventListener(
 
 
 
-        // ================================
-        // CHECK APK
-        // ================================
+       // ================================
+// CHECK APP FILE
+// ================================
 
-        if (
-            apkInput.files.length === 0
-        ) {
+if (apkInput.files.length === 0) {
 
-            showMessage(
-                "Please select an APK file.",
-                "error"
-            );
+    showMessage(
+        "Please select an app file.",
+        "error"
+    );
 
-            return;
+    return;
 
-        }
+}
 
+const appFile =
+    apkInput.files[0];
 
-        const apkFile =
-            apkInput.files[0];
+const allowedExtensions = [
+    ".apk",
+    ".exe",
+    ".msi",
+    ".deb",
+    ".appimage",
+    ".dmg",
+    ".app"
+];
 
+const fileName =
+    appFile.name.toLowerCase();
 
-        if (
-            !apkFile.name
-                .toLowerCase()
-                .endsWith(".apk")
-        ) {
+const validExtension =
+    allowedExtensions.some(function (extension) {
 
-            showMessage(
-                "Please select a valid APK file.",
-                "error"
-            );
+        return fileName.endsWith(extension);
 
-            return;
+    });
 
-        }
+if (!validExtension) {
+
+    showMessage(
+        "Please select a supported app file.",
+        "error"
+    );
+
+    return;
+
+}
 
 
 
