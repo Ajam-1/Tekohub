@@ -5,13 +5,9 @@ const token = localStorage.getItem("token");
 // ================================
 
 if (!token) {
-
-```
-window.location.href =
-    "login.html?returnTo=upload.html";
-```
-
+    window.location.href = "login.html?returnTo=upload.html";
 }
+
 
 // ================================
 // VERIFY LOGIN
@@ -19,596 +15,572 @@ window.location.href =
 
 async function checkLogin() {
 
-```
-try {
+    try {
 
-    const response = await fetch(
-        "https://tekohub.onrender.com/api/me",
-        {
-            headers: {
-                "Authorization": `Bearer ${token}`
+        const response = await fetch(
+            "https://tekohub.onrender.com/api/me",
+            {
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                }
             }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok || !data.loggedIn) {
+
+            localStorage.removeItem("token");
+
+            window.location.href =
+                "login.html?returnTo=upload.html";
+
+            return;
         }
-    );
 
-    const data = await response.json();
+        console.log(
+            "Logged in as:",
+            data.user.username
+        );
 
-    if (!response.ok || !data.loggedIn) {
+        setupUpload();
 
-        localStorage.removeItem("token");
+    } catch (error) {
 
-        window.location.href =
-            "login.html?returnTo=upload.html";
+        console.error(
+            "Authentication error:",
+            error
+        );
 
-        return;
-
+        showMessage(
+            "Could not connect to the Tekohub server.",
+            "error"
+        );
     }
-
-    console.log(
-        "Logged in as:",
-        data.user.username
-    );
-
-    setupUpload();
-
-} catch (error) {
-
-    console.error(
-        "Authentication error:",
-        error
-    );
-
-    showMessage(
-        "Could not connect to the Tekohub server.",
-        "error"
-    );
-
 }
-```
 
-}
 
 // ================================
-// UPLOAD PAGE
+// SETUP UPLOAD
 // ================================
 
 function setupUpload() {
 
+    const uploadForm =
+        document.querySelector("#upload-form");
 
-const uploadForm =
-    document.querySelector("#upload-form");
+    const appName =
+        document.querySelector("#app-name");
 
-const appName =
-    document.querySelector("#app-name");
+    const appDeveloper =
+        document.querySelector("#app-developer");
 
-const appDeveloper =
-    document.querySelector("#app-developer");
+    const appVersion =
+        document.querySelector("#app-version");
 
-const appVersion =
-    document.querySelector("#app-version");
+    const appCategory =
+        document.querySelector("#app-category");
 
-const appCategory =
-    document.querySelector("#app-category");
+    const appDescription =
+        document.querySelector("#app-description");
 
-const appDescription =
-    document.querySelector("#app-description");
+    const appLogo =
+        document.querySelector("#app-logo");
 
-const appLogo =
-    document.querySelector("#app-logo");
+    const appFileInput =
+        document.querySelector("#app-file");
 
-const apkInput =
-    document.querySelector("#app-file");
+    const screenshotInput =
+        document.querySelector(
+            '#screenshots input[type="file"]'
+        );
 
-const screenshotInput =
-    document.querySelector(
-        '#screenshots input[type="file"]'
+    const screenshotPreview =
+        document.querySelector(
+            ".wherethescreenshotappears"
+        );
+
+    // ================================
+    // LOGO PREVIEW
+    // ================================
+
+    const logoPreview =
+        document.createElement("div");
+
+    logoPreview.className =
+        "logo-preview";
+
+    appLogo.parentElement.appendChild(
+        logoPreview
     );
 
-const screenshotPreview =
-    document.querySelector(
-        ".wherethescreenshotappears"
-    );
 
-const uploadButton =
-    document.querySelector(".publish-button");
+    appLogo.addEventListener(
+        "change",
+        function () {
 
+            logoPreview.innerHTML = "";
 
+            const file =
+                appLogo.files[0];
 
-// ================================
-// CREATE LOGO PREVIEW
-// ================================
+            if (!file) {
+                return;
+            }
 
-const logoPreview =
-    document.createElement("div");
+            if (!file.type.startsWith("image/")) {
 
-logoPreview.className =
-    "logo-preview";
-
-appLogo.parentElement.appendChild(
-    logoPreview
-);
-
-
-
-// ================================
-// LOGO PREVIEW
-// ================================
-
-appLogo.addEventListener(
-    "change",
-    function () {
-
-        logoPreview.innerHTML = "";
-
-        const file =
-            appLogo.files[0];
-
-        if (!file) {
-            return;
-        }
-
-        if (!file.type.startsWith("image/")) {
-            return;
-        }
-
-        const image =
-            document.createElement("img");
-
-        image.src =
-            URL.createObjectURL(file);
-
-        image.alt =
-            "App logo preview";
-
-        logoPreview.appendChild(image);
-
-    }
-);
-
-
-
-// ================================
-// APK FILE DISPLAY
-// ================================
-
-const apkInfo =
-    document.createElement("div");
-
-apkInfo.className =
-    "apk-selected";
-
-apkInput.parentElement.appendChild(
-    apkInfo
-);
-
-
-apkInput.addEventListener(
-    "change",
-    function () {
-
-        apkInfo.textContent = "";
-
-        const file =
-            apkInput.files[0];
-
-        if (!file) {
-            return;
-        }
-
-        apkInfo.textContent =
-            `Selected: ${file.name}`;
-
-    }
-);
-
-
-
-// ================================
-// SCREENSHOT PREVIEW
-// ================================
-
-screenshotInput.addEventListener(
-    "change",
-    function () {
-
-        screenshotPreview.innerHTML = "";
-
-        const files =
-            Array.from(
-                screenshotInput.files
-            );
-
-
-        if (files.length > 5) {
-
-            showMessage(
-                "You can upload a maximum of 5 screenshots.",
-                "error"
-            );
-
-            screenshotInput.value = "";
-
-            return;
-
-        }
-
-
-        files.forEach(
-            function (file, index) {
-
-                if (
-                    !file.type.startsWith(
-                        "image/"
-                    )
-                ) {
-
-                    return;
-
-                }
-
-
-                const card =
-                    document.createElement(
-                        "div"
-                    );
-
-                card.className =
-                    "screenshot-card";
-
-
-                const image =
-                    document.createElement(
-                        "img"
-                    );
-
-                image.src =
-                    URL.createObjectURL(
-                        file
-                    );
-
-                image.alt =
-                    `Screenshot ${index + 1}`;
-
-
-                const number =
-                    document.createElement(
-                        "span"
-                    );
-
-                number.textContent =
-                    `${index + 1}`;
-
-
-                card.appendChild(image);
-
-                card.appendChild(number);
-
-                screenshotPreview.appendChild(
-                    card
+                showMessage(
+                    "Please select a valid image for your app logo.",
+                    "error"
                 );
 
+                appLogo.value = "";
+
+                return;
             }
-        );
 
-    }
-);
+            const image =
+                document.createElement("img");
 
+            image.src =
+                URL.createObjectURL(file);
 
+            image.alt =
+                "App logo preview";
 
-// ================================
-// SUBMIT UPLOAD
-// ================================
-
-uploadForm.addEventListener(
-    "submit",
-    async function (event) {
-
-        event.preventDefault();
-
-
-        // ================================
-        // VALIDATE INFORMATION
-        // ================================
-
-        if (
-            appName.value.trim() === "" ||
-            appDeveloper.value.trim() === "" ||
-            appVersion.value.trim() === "" ||
-            appCategory.value.trim() === "" ||
-            appDescription.value.trim() === ""
-        ) {
-
-            showMessage(
-                "Please fill in all app information.",
-                "error"
-            );
-
-            return;
-
+            logoPreview.appendChild(image);
         }
-
-
-
-        // ================================
-        // CHECK LOGO
-        // ================================
-
-        if (
-            appLogo.files.length === 0
-        ) {
-
-            showMessage(
-                "Please select an app logo.",
-                "error"
-            );
-
-            return;
-
-        }
-
-
-        const logoFile =
-            appLogo.files[0];
-
-
-        if (
-            !logoFile.type.startsWith(
-                "image/"
-            )
-        ) {
-
-            showMessage(
-                "Please select a valid image for your app logo.",
-                "error"
-            );
-
-            return;
-
-        }
-
-
-
-       // ================================
-// CHECK APP FILE
-// ================================
-
-if (apkInput.files.length === 0) {
-
-    showMessage(
-        "Please select an app file.",
-        "error"
     );
 
-    return;
 
-}
+    // ================================
+    // APP FILE DISPLAY
+    // ================================
 
-const appFile =
-    apkInput.files[0];
+    const appFileInfo =
+        document.createElement("div");
 
-const allowedExtensions = [
-    ".apk",
-    ".exe",
-    ".msi",
-    ".deb",
-    ".appimage",
-    ".dmg",
-    ".app"
-];
+    appFileInfo.className =
+        "apk-selected";
 
-const fileName =
-    appFile.name.toLowerCase();
-
-const validExtension =
-    allowedExtensions.some(function (extension) {
-
-        return fileName.endsWith(extension);
-
-    });
-
-if (!validExtension) {
-
-    showMessage(
-        "Please select a supported app file.",
-        "error"
+    appFileInput.parentElement.appendChild(
+        appFileInfo
     );
 
-    return;
 
-}
+    appFileInput.addEventListener(
+        "change",
+        function () {
 
+            appFileInfo.textContent = "";
 
+            const file =
+                appFileInput.files[0];
 
-        // ================================
-        // CHECK SCREENSHOTS
-        // ================================
+            if (!file) {
+                return;
+            }
 
-        if (
-            screenshotInput.files.length > 5
-        ) {
-
-            showMessage(
-                "You can upload a maximum of 5 screenshots.",
-                "error"
-            );
-
-            return;
-
+            appFileInfo.textContent =
+                `Selected: ${file.name}`;
         }
+    );
 
 
+    // ================================
+    // SCREENSHOT PREVIEW
+    // ================================
 
-        // ================================
-        // CREATE FORM DATA
-        // ================================
+    screenshotInput.addEventListener(
+        "change",
+        function () {
 
-        const formData =
-            new FormData();
+            screenshotPreview.innerHTML = "";
 
-
-        formData.append(
-            "app-name",
-            appName.value.trim()
-        );
-
-
-        formData.append(
-            "app-developer",
-            appDeveloper.value.trim()
-        );
+            const files =
+                Array.from(
+                    screenshotInput.files
+                );
 
 
-        formData.append(
-            "app-version",
-            appVersion.value.trim()
-        );
+            if (files.length > 5) {
+
+                showMessage(
+                    "You can upload a maximum of 5 screenshots.",
+                    "error"
+                );
+
+                screenshotInput.value = "";
+
+                return;
+            }
 
 
-        formData.append(
-            "app-category",
-            appCategory.value.trim()
-        );
+            files.forEach(
+                function (file, index) {
+
+                    if (
+                        !file.type.startsWith("image/")
+                    ) {
+                        return;
+                    }
 
 
-        formData.append(
-            "app-description",
-            appDescription.value.trim()
-        );
+                    const card =
+                        document.createElement("div");
+
+                    card.className =
+                        "screenshot-card";
 
 
-        formData.append(
-            "app-logo",
-            logoFile
-        );
+                    const image =
+                        document.createElement("img");
+
+                    image.src =
+                        URL.createObjectURL(file);
+
+                    image.alt =
+                        `Screenshot ${index + 1}`;
 
 
-        formData.append(
-            "app-file",
-            apkFile
-        );
+                    const number =
+                        document.createElement("span");
+
+                    number.textContent =
+                        `${index + 1}`;
 
 
+                    card.appendChild(image);
 
-        // ================================
-        // ADD SCREENSHOTS
-        // ================================
+                    card.appendChild(number);
 
-        for (
-            const file of screenshotInput.files
-        ) {
-
-            formData.append(
-                "screenshots[]",
-                file
+                    screenshotPreview.appendChild(
+                        card
+                    );
+                }
             );
-
         }
+    );
 
 
+    // ================================
+    // SUBMIT UPLOAD
+    // ================================
 
-        // ================================
-        // UPLOAD STATE
-        // ================================
+    uploadForm.addEventListener(
+        "submit",
+        async function (event) {
 
-        setUploading(true);
+            event.preventDefault();
+
+            console.log("Upload form submitted");
 
 
+            // ================================
+            // VALIDATE INFORMATION
+            // ================================
 
-        // ================================
-        // SEND TO BACKEND
-        // ================================
+            if (
+                appName.value.trim() === "" ||
+                appDeveloper.value.trim() === "" ||
+                appVersion.value.trim() === "" ||
+                appCategory.value.trim() === "" ||
+                appDescription.value.trim() === ""
+            ) {
 
-        try {
+                showMessage(
+                    "Please fill in all app information.",
+                    "error"
+                );
 
-            const response =
-                await fetch(
-                    "https://tekohub.onrender.com/api/apps",
-                    {
-                        method: "POST",
+                return;
+            }
 
-                        headers: {
-                            "Authorization":
-                                `Bearer ${token}`
-                        },
 
-                        body: formData
+            // ================================
+            // CHECK LOGO
+            // ================================
+
+            if (
+                appLogo.files.length === 0
+            ) {
+
+                showMessage(
+                    "Please select an app logo.",
+                    "error"
+                );
+
+                return;
+            }
+
+
+            const logoFile =
+                appLogo.files[0];
+
+
+            if (
+                !logoFile.type.startsWith("image/")
+            ) {
+
+                showMessage(
+                    "Please select a valid image for your app logo.",
+                    "error"
+                );
+
+                return;
+            }
+
+
+            // ================================
+            // CHECK APP FILE
+            // ================================
+
+            if (
+                appFileInput.files.length === 0
+            ) {
+
+                showMessage(
+                    "Please select an app file.",
+                    "error"
+                );
+
+                return;
+            }
+
+
+            const appFile =
+                appFileInput.files[0];
+
+
+            const allowedExtensions = [
+                ".apk",
+                ".exe",
+                ".msi",
+                ".deb",
+                ".appimage",
+                ".dmg",
+                ".app"
+            ];
+
+
+            const fileName =
+                appFile.name.toLowerCase();
+
+
+            const validExtension =
+                allowedExtensions.some(
+                    function (extension) {
+
+                        return fileName.endsWith(
+                            extension
+                        );
                     }
                 );
 
 
-            const data =
-                await response.json();
-
-
-
-            // ================================
-            // SUCCESS
-            // ================================
-
-            if (response.ok) {
+            if (!validExtension) {
 
                 showMessage(
-                    "Your app has been published successfully!",
-                    "success"
-                );
-
-
-                uploadForm.reset();
-
-
-                screenshotPreview.innerHTML =
-                    "";
-
-
-                logoPreview.innerHTML =
-                    "";
-
-
-                apkInfo.textContent =
-                    "";
-
-
-                console.log(
-                    "Uploaded app:",
-                    data.app
-                );
-
-
-            } else {
-
-                showMessage(
-                    data.message ||
-                    "Upload failed.",
+                    "Please select a supported app file.",
                     "error"
                 );
 
+                return;
             }
 
 
-        } catch (error) {
+            // ================================
+            // CHECK SCREENSHOTS
+            // ================================
 
-            console.error(
-                "Upload error:",
-                error
+            if (
+                screenshotInput.files.length > 5
+            ) {
+
+                showMessage(
+                    "You can upload a maximum of 5 screenshots.",
+                    "error"
+                );
+
+                return;
+            }
+
+
+            // ================================
+            // CREATE FORM DATA
+            // ================================
+
+            const formData =
+                new FormData();
+
+
+            formData.append(
+                "app-name",
+                appName.value.trim()
             );
 
 
-            showMessage(
-                "Could not connect to the Tekohub server.",
-                "error"
+            formData.append(
+                "app-developer",
+                appDeveloper.value.trim()
             );
 
-        } finally {
 
-            setUploading(false);
+            formData.append(
+                "app-version",
+                appVersion.value.trim()
+            );
+
+
+            formData.append(
+                "app-category",
+                appCategory.value.trim()
+            );
+
+
+            formData.append(
+                "app-description",
+                appDescription.value.trim()
+            );
+
+
+            formData.append(
+                "app-logo",
+                logoFile
+            );
+
+
+            // IMPORTANT:
+            // Use appFile, not apkFile.
+
+            formData.append(
+                "app-file",
+                appFile
+            );
+
+
+            // ================================
+            // ADD SCREENSHOTS
+            // ================================
+
+            for (
+                const file of screenshotInput.files
+            ) {
+
+                formData.append(
+                    "screenshots[]",
+                    file
+                );
+            }
+
+
+            // ================================
+            // UPLOAD STATE
+            // ================================
+
+            setUploading(true);
+
+
+            // ================================
+            // SEND TO BACKEND
+            // ================================
+
+            try {
+
+                console.log(
+                    "Sending app to Tekohub backend..."
+                );
+
+
+                const response =
+                    await fetch(
+                        "https://tekohub.onrender.com/api/apps",
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "Authorization":
+                                    `Bearer ${token}`
+                            },
+
+                            body: formData
+                        }
+                    );
+
+
+                const data =
+                    await response.json();
+
+
+                console.log(
+                    "Backend response:",
+                    data
+                );
+
+
+                // ================================
+                // SUCCESS
+                // ================================
+
+                if (response.ok) {
+
+                    showMessage(
+                        "Your app has been published successfully!",
+                        "success"
+                    );
+
+
+                    uploadForm.reset();
+
+                    screenshotPreview.innerHTML =
+                        "";
+
+                    logoPreview.innerHTML =
+                        "";
+
+                    appFileInfo.textContent =
+                        "";
+
+
+                    console.log(
+                        "Uploaded app:",
+                        data.app
+                    );
+
+                } else {
+
+                    showMessage(
+                        data.message ||
+                        "Upload failed.",
+                        "error"
+                    );
+                }
+
+
+            } catch (error) {
+
+                console.error(
+                    "Upload error:",
+                    error
+                );
+
+
+                showMessage(
+                    "Could not connect to the Tekohub server.",
+                    "error"
+                );
+
+
+            } finally {
+
+                setUploading(false);
+            }
 
         }
-
-    }
-);
-```
-
+    );
 }
+
 
 // ================================
 // UPLOAD BUTTON STATE
@@ -616,106 +588,100 @@ if (!validExtension) {
 
 function setUploading(uploading) {
 
-```
-const button =
-    document.querySelector(
-        ".publish-button"
-    );
+    const button =
+        document.querySelector(
+            ".publish-button"
+        );
 
-if (!button) {
-    return;
+    if (!button) {
+        return;
+    }
+
+
+    if (uploading) {
+
+        button.disabled = true;
+
+        button.innerHTML =
+            `
+            <span>Publishing...</span>
+            `;
+
+    } else {
+
+        button.disabled = false;
+
+        button.innerHTML =
+            `
+            <span>Publish App</span>
+            <span>→</span>
+            `;
+    }
 }
 
-
-if (uploading) {
-
-    button.disabled = true;
-
-    button.innerHTML =
-        `
-        <span>Publishing...</span>
-        `;
-
-} else {
-
-    button.disabled = false;
-
-    button.innerHTML =
-        `
-        <span>Publish App</span>
-        <span>→</span>
-        `;
-
-}
-```
-
-}
 
 // ================================
 // MESSAGE SYSTEM
 // ================================
 
 function showMessage(
-message,
-type
+    message,
+    type
 ) {
 
-```
-let messageBox =
-    document.querySelector(
-        ".upload-message"
-    );
-
-
-if (!messageBox) {
-
-    messageBox =
-        document.createElement(
-            "div"
-        );
-
-    messageBox.className =
-        "upload-message";
-
-    const form =
+    let messageBox =
         document.querySelector(
-            "#upload-form"
+            ".upload-message"
         );
 
-    form.insertBefore(
-        messageBox,
-        form.firstChild
-    );
 
-}
+    if (!messageBox) {
 
-
-messageBox.textContent =
-    message;
-
-
-messageBox.className =
-    `upload-message ${type}`;
-
-
-messageBox.scrollIntoView({
-    behavior: "smooth",
-    block: "center"
-});
-
-
-setTimeout(
-    function () {
+        messageBox =
+            document.createElement("div");
 
         messageBox.className =
             "upload-message";
 
-    },
-    5000
-);
-```
 
+        const form =
+            document.querySelector(
+                "#upload-form"
+            );
+
+
+        form.insertBefore(
+            messageBox,
+            form.firstChild
+        );
+    }
+
+
+    messageBox.textContent =
+        message;
+
+
+    messageBox.className =
+        `upload-message ${type}`;
+
+
+    messageBox.scrollIntoView({
+        behavior: "smooth",
+        block: "center"
+    });
+
+
+    setTimeout(
+        function () {
+
+            messageBox.className =
+                "upload-message";
+
+        },
+        5000
+    );
 }
+
 
 // ================================
 // START
