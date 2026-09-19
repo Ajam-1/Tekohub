@@ -1,5 +1,6 @@
 // ======================================================
 // TEKOHUB SERVER
+// CLOUDINARY STORAGE VERSION
 // ======================================================
 
 // ======================================================
@@ -15,6 +16,7 @@ const jwt = require("jsonwebtoken");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
+const cloudinary = require("cloudinary").v2;
 
 
 // ======================================================
@@ -31,6 +33,24 @@ const Review = require("./models/review");
 // ======================================================
 
 dotenv.config();
+
+
+// ======================================================
+// CLOUDINARY
+// ======================================================
+
+cloudinary.config({
+
+    cloud_name:
+        process.env.CLOUDINARY_CLOUD_NAME,
+
+    api_key:
+        process.env.CLOUDINARY_API_KEY,
+
+    api_secret:
+        process.env.CLOUDINARY_API_SECRET
+
+});
 
 
 // ======================================================
@@ -56,19 +76,19 @@ server.use(
 
 
 // ======================================================
-// UPLOAD DIRECTORIES
+// TEMPORARY UPLOAD DIRECTORIES
 // ======================================================
 
 const uploadDir =
     path.join(
         __dirname,
-        "uploads"
+        "temp-uploads"
     );
 
-const apkDir =
+const appDir =
     path.join(
         uploadDir,
-        "apks"
+        "apps"
     );
 
 const logoDir =
@@ -85,11 +105,11 @@ const screenshotDir =
 
 
 // ======================================================
-// CREATE UPLOAD DIRECTORIES
+// CREATE TEMPORARY DIRECTORIES
 // ======================================================
 
 fs.mkdirSync(
-    apkDir,
+    appDir,
     {
         recursive: true
     }
@@ -107,16 +127,6 @@ fs.mkdirSync(
     {
         recursive: true
     }
-);
-
-
-// ======================================================
-// SERVE UPLOADED FILES
-// ======================================================
-
-server.use(
-    "/uploads",
-    express.static(uploadDir)
 );
 
 
@@ -157,10 +167,6 @@ const storage =
                 callback
             ) {
 
-                // ------------------------------
-                // APP LOGO
-                // ------------------------------
-
                 if (
                     file.fieldname ===
                     "app-logo"
@@ -176,10 +182,6 @@ const storage =
                 }
 
 
-                // ------------------------------
-                // APP FILE
-                // ------------------------------
-
                 if (
                     file.fieldname ===
                     "app-file"
@@ -187,17 +189,13 @@ const storage =
 
                     callback(
                         null,
-                        apkDir
+                        appDir
                     );
 
                     return;
 
                 }
 
-
-                // ------------------------------
-                // SCREENSHOTS
-                // ------------------------------
 
                 if (
                     file.fieldname ===
@@ -215,10 +213,6 @@ const storage =
 
                 }
 
-
-                // ------------------------------
-                // UNKNOWN FIELD
-                // ------------------------------
 
                 callback(
                     new Error(
@@ -402,10 +396,6 @@ const fileFilter =
         }
 
 
-        // ==================================================
-        // UNKNOWN FIELD
-        // ==================================================
-
         callback(
             new Error(
                 `Unexpected file field: ${file.fieldname}`
@@ -423,16 +413,12 @@ const upload =
     multer({
 
         storage:
-
             storage,
 
         fileFilter:
-
             fileFilter,
 
         limits: {
-
-            // 100 MB per file
 
             fileSize:
                 100 *
@@ -579,6 +565,306 @@ async function connectDatabase() {
 
 
 // ======================================================
+// CLOUDINARY HELPERS
+// ======================================================
+
+function uploadToCloudinary(
+    filePath,
+    options
+) {
+
+    return new Promise(
+        function (
+            resolve,
+            reject
+        ) {
+
+            cloudinary.uploader.upload(
+                filePath,
+                options,
+                function (
+                    error,
+                    result
+                ) {
+
+                    if (error) {
+
+                        reject(
+                            error
+                        );
+
+                        return;
+
+                    }
+
+                    resolve(
+                        result
+                    );
+
+                }
+            );
+
+        }
+    );
+
+}
+
+
+// ======================================================
+// CLOUDINARY LARGE RAW FILE UPLOAD
+// ======================================================
+
+function uploadLargeRawFile(
+    filePath,
+    options
+) {
+
+    return new Promise(
+        function (
+            resolve,
+            reject
+        ) {
+
+            const uploadStream =
+                cloudinary.uploader.upload_large(
+                    filePath,
+                    options,
+                    function (
+                        error,
+                        result
+                    ) {
+
+                        if (error) {
+
+                            reject(
+                                error
+                            );
+
+                            return;
+
+                        }
+
+                        resolve(
+                            result
+                        );
+
+                    }
+                );
+
+        }
+    );
+
+}
+
+
+// ======================================================
+// DELETE CLOUDINARY ASSET
+// ======================================================
+
+async function deleteCloudinaryAsset(
+    publicId,
+    resourceType
+) {
+
+    if (
+        !publicId
+    ) {
+
+        return;
+
+    }
+
+
+    try {
+
+        await cloudinary.uploader.destroy(
+
+            publicId,
+
+            {
+
+                resource_type:
+                    resourceType,
+
+                type:
+                    "upload",
+
+                invalidate:
+                    true
+
+            }
+
+        );
+
+    } catch (
+        error
+    ) {
+
+        console.error(
+            "Cloudinary delete error:",
+            error.message
+        );
+
+    }
+
+}
+
+
+// ======================================================
+// GET CLOUDINARY PUBLIC ID FROM URL
+// ======================================================
+
+function getCloudinaryPublicId(
+    url,
+    resourceType
+) {
+
+    if (
+        !url ||
+        !url.includes(
+            "res.cloudinary.com"
+        )
+    ) {
+
+        return null;
+
+    }
+
+
+    try {
+
+        const parsedUrl =
+            new URL(
+                url
+            );
+
+
+        const pathname =
+            parsedUrl.pathname;
+
+
+        const marker =
+            `/${resourceType}/upload/`;
+
+
+        const index =
+            pathname.indexOf(
+                marker
+            );
+
+
+        if (
+            index === -1
+        ) {
+
+            return null;
+
+        }
+
+
+        let publicId =
+            pathname.substring(
+                index +
+                marker.length
+            );
+
+
+        publicId =
+            publicId.replace(
+                /^v[0-9]+\//,
+                ""
+            );
+
+
+        if (
+            resourceType ===
+            "raw"
+        ) {
+
+            return publicId;
+
+        }
+
+
+        const extension =
+            path.extname(
+                publicId
+            );
+
+
+        if (
+            extension
+        ) {
+
+            publicId =
+                publicId.substring(
+                    0,
+                    publicId.length -
+                    extension.length
+                );
+
+        }
+
+
+        return publicId;
+
+    } catch (
+        error
+    ) {
+
+        return null;
+
+    }
+
+}
+
+
+// ======================================================
+// CLEAN TEMP FILE
+// ======================================================
+
+function deleteTempFile(
+    filePath
+) {
+
+    if (
+        !filePath
+    ) {
+
+        return;
+
+    }
+
+
+    try {
+
+        if (
+            fs.existsSync(
+                filePath
+            )
+        ) {
+
+            fs.unlinkSync(
+                filePath
+            );
+
+        }
+
+    } catch (
+        error
+    ) {
+
+        console.error(
+            "Temporary file cleanup error:",
+            error.message
+        );
+
+    }
+
+}
+
+
+// ======================================================
 // SIGN UP
 // ======================================================
 
@@ -598,10 +884,6 @@ server.post(
             } = req.body;
 
 
-            // ------------------------------
-            // VALIDATE
-            // ------------------------------
-
             if (
                 !username ||
                 !email ||
@@ -619,10 +901,6 @@ server.post(
 
             }
 
-
-            // ------------------------------
-            // CHECK EXISTING USER
-            // ------------------------------
 
             const existingUser =
                 await User.findOne({
@@ -660,20 +938,12 @@ server.post(
             }
 
 
-            // ------------------------------
-            // HASH PASSWORD
-            // ------------------------------
-
             const hashedPassword =
                 await bcrypt.hash(
                     password,
                     10
                 );
 
-
-            // ------------------------------
-            // CREATE USER
-            // ------------------------------
 
             const newUser =
                 new User({
@@ -693,10 +963,6 @@ server.post(
             await newUser.save();
 
 
-            // ------------------------------
-            // RESPONSE
-            // ------------------------------
-
             res.status(
                 201
             ).json({
@@ -707,7 +973,9 @@ server.post(
             });
 
 
-        } catch (error) {
+        } catch (
+            error
+        ) {
 
             console.error(
                 "Signup error:",
@@ -749,10 +1017,6 @@ server.post(
             } = req.body;
 
 
-            // ------------------------------
-            // VALIDATE
-            // ------------------------------
-
             if (
                 !username ||
                 !password
@@ -769,10 +1033,6 @@ server.post(
 
             }
 
-
-            // ------------------------------
-            // FIND USER
-            // ------------------------------
 
             const user =
                 await User.findOne({
@@ -808,10 +1068,6 @@ server.post(
             }
 
 
-            // ------------------------------
-            // CHECK PASSWORD
-            // ------------------------------
-
             const passwordMatch =
                 await bcrypt.compare(
                     password,
@@ -834,10 +1090,6 @@ server.post(
 
             }
 
-
-            // ------------------------------
-            // CREATE TOKEN
-            // ------------------------------
 
             const token =
                 jwt.sign(
@@ -867,10 +1119,6 @@ server.post(
                 );
 
 
-            // ------------------------------
-            // RESPONSE
-            // ------------------------------
-
             res.json({
 
                 message:
@@ -892,7 +1140,9 @@ server.post(
             });
 
 
-        } catch (error) {
+        } catch (
+            error
+        ) {
 
             console.error(
                 "Login error:",
@@ -955,7 +1205,9 @@ server.get(
             });
 
 
-        } catch (error) {
+        } catch (
+            error
+        ) {
 
             res.status(
                 401
@@ -1019,11 +1271,11 @@ server.post(
         res
     ) {
 
-        try {
+        const temporaryFiles = [];
 
-            // ------------------------------
-            // AUTHENTICATE
-            // ------------------------------
+        let uploadedCloudinaryAssets = [];
+
+        try {
 
             const {
                 user
@@ -1032,10 +1284,6 @@ server.post(
                     req
                 );
 
-
-            // ------------------------------
-            // APP INFORMATION
-            // ------------------------------
 
             const name =
                 req.body[
@@ -1083,10 +1331,6 @@ server.post(
             }
 
 
-            // ------------------------------
-            // CHECK LOGO
-            // ------------------------------
-
             if (
                 !req.files ||
                 !req.files[
@@ -1108,10 +1352,6 @@ server.post(
 
             }
 
-
-            // ------------------------------
-            // CHECK APP FILE
-            // ------------------------------
 
             if (
                 !req.files ||
@@ -1135,14 +1375,11 @@ server.post(
             }
 
 
-            // ------------------------------
-            // GET FILES
-            // ------------------------------
-
             const logoFile =
                 req.files[
                     "app-logo"
                 ][0];
+
 
             const appFile =
                 req.files[
@@ -1150,25 +1387,112 @@ server.post(
                 ][0];
 
 
-            // ------------------------------
-            // LOGO URL
-            // ------------------------------
+            temporaryFiles.push(
+                logoFile.path
+            );
 
-            const logo =
-                `/uploads/logos/${logoFile.filename}`;
-
-
-            // ------------------------------
-            // APP FILE URL
-            // ------------------------------
-
-            const appFileUrl =
-                `/uploads/apks/${appFile.filename}`;
+            temporaryFiles.push(
+                appFile.path
+            );
 
 
-            // ------------------------------
+            if (
+                req.files[
+                    "screenshots[]"
+                ]
+            ) {
+
+                for (
+                    const file
+                    of req.files[
+                        "screenshots[]"
+                    ]
+                ) {
+
+                    temporaryFiles.push(
+                        file.path
+                    );
+
+                }
+
+            }
+
+
+            // ==================================================
+            // UPLOAD LOGO TO CLOUDINARY
+            // ==================================================
+
+            const logoUpload =
+                await uploadToCloudinary(
+
+                    logoFile.path,
+
+                    {
+
+                        folder:
+                            "tekohub/logos",
+
+                        resource_type:
+                            "image"
+
+                    }
+
+                );
+
+
+            uploadedCloudinaryAssets.push({
+
+                publicId:
+                    logoUpload.public_id,
+
+                resourceType:
+                    "image"
+
+            });
+
+
+            // ==================================================
+            // UPLOAD APP FILE TO CLOUDINARY
+            // ==================================================
+
+            const appUpload =
+                await uploadLargeRawFile(
+
+                    appFile.path,
+
+                    {
+
+                        folder:
+                            "tekohub/apps",
+
+                        resource_type:
+                            "raw",
+
+                        use_filename:
+                            true,
+
+                        unique_filename:
+                            true
+
+                    }
+
+                );
+
+
+            uploadedCloudinaryAssets.push({
+
+                publicId:
+                    appUpload.public_id,
+
+                resourceType:
+                    "raw"
+
+            });
+
+
+            // ==================================================
             // SCREENSHOTS
-            // ------------------------------
+            // ==================================================
 
             const screenshots = [];
 
@@ -1186,8 +1510,37 @@ server.post(
                     ]
                 ) {
 
+                    const screenshotUpload =
+                        await uploadToCloudinary(
+
+                            file.path,
+
+                            {
+
+                                folder:
+                                    "tekohub/screenshots",
+
+                                resource_type:
+                                    "image"
+
+                            }
+
+                        );
+
+
+                    uploadedCloudinaryAssets.push({
+
+                        publicId:
+                            screenshotUpload.public_id,
+
+                        resourceType:
+                            "image"
+
+                    });
+
+
                     screenshots.push(
-                        `/uploads/screenshots/${file.filename}`
+                        screenshotUpload.secure_url
                     );
 
                 }
@@ -1195,9 +1548,9 @@ server.post(
             }
 
 
-            // ------------------------------
+            // ==================================================
             // CREATE APP
-            // ------------------------------
+            // ==================================================
 
             const newApp =
                 new App({
@@ -1218,14 +1571,10 @@ server.post(
                         description.trim(),
 
                     logo:
-                        logo,
-
-                    // Keep this field name
-                    // because your current
-                    // MongoDB schema uses it.
+                        logoUpload.secure_url,
 
                     apkFile:
-                        appFileUrl,
+                        appUpload.secure_url,
 
                     screenshots:
                         screenshots,
@@ -1239,9 +1588,21 @@ server.post(
             await newApp.save();
 
 
-            // ------------------------------
-            // RESPONSE
-            // ------------------------------
+            // ==================================================
+            // DELETE TEMPORARY FILES
+            // ==================================================
+
+            for (
+                const filePath
+                of temporaryFiles
+            ) {
+
+                deleteTempFile(
+                    filePath
+                );
+
+            }
+
 
             res.status(
                 201
@@ -1256,12 +1617,46 @@ server.post(
             });
 
 
-        } catch (error) {
+        } catch (
+            error
+        ) {
 
             console.error(
                 "App upload error:",
                 error
             );
+
+
+            // ==================================================
+            // REMOVE CLOUDINARY FILES IF DATABASE SAVE FAILED
+            // ==================================================
+
+            for (
+                const asset
+                of uploadedCloudinaryAssets
+            ) {
+
+                await deleteCloudinaryAsset(
+
+                    asset.publicId,
+
+                    asset.resourceType
+
+                );
+
+            }
+
+
+            for (
+                const filePath
+                of temporaryFiles
+            ) {
+
+                deleteTempFile(
+                    filePath
+                );
+
+            }
 
 
             if (
@@ -1378,7 +1773,9 @@ server.get(
             });
 
 
-        } catch (error) {
+        } catch (
+            error
+        ) {
 
             console.error(
                 "Get apps error:",
@@ -1444,7 +1841,9 @@ server.get(
             });
 
 
-        } catch (error) {
+        } catch (
+            error
+        ) {
 
             console.error(
                 "Get my apps error:",
@@ -1510,7 +1909,9 @@ server.get(
             });
 
 
-        } catch (error) {
+        } catch (
+            error
+        ) {
 
             console.error(
                 "Get my reviews error:",
@@ -1574,7 +1975,9 @@ server.get(
             });
 
 
-        } catch (error) {
+        } catch (
+            error
+        ) {
 
             console.error(
                 "Get app error:",
@@ -1589,7 +1992,7 @@ server.get(
                 message:
                     "Failed to get app."
 
-            });
+                });
 
         }
 
@@ -1638,10 +2041,6 @@ server.delete(
             }
 
 
-            // ------------------------------
-            // CHECK OWNERSHIP
-            // ------------------------------
-
             if (
                 appData.uploadedBy
                     .toString() !==
@@ -1660,79 +2059,61 @@ server.delete(
             }
 
 
-            // ------------------------------
-            // DELETE LOGO
-            // ------------------------------
+            // ==================================================
+            // DELETE LOGO FROM CLOUDINARY
+            // ==================================================
+
+            const logoPublicId =
+                getCloudinaryPublicId(
+                    appData.logo,
+                    "image"
+                );
+
 
             if (
-                appData.logo
+                logoPublicId
             ) {
 
-                const logoPath =
-                    path.join(
+                await deleteCloudinaryAsset(
 
-                        logoDir,
+                    logoPublicId,
 
-                        path.basename(
-                            appData.logo
-                        )
+                    "image"
 
-                    );
-
-
-                if (
-                    fs.existsSync(
-                        logoPath
-                    )
-                ) {
-
-                    fs.unlinkSync(
-                        logoPath
-                    );
-
-                }
+                );
 
             }
 
 
-            // ------------------------------
-            // DELETE APP FILE
-            // ------------------------------
+            // ==================================================
+            // DELETE APP FILE FROM CLOUDINARY
+            // ==================================================
+
+            const appPublicId =
+                getCloudinaryPublicId(
+                    appData.apkFile,
+                    "raw"
+                );
+
 
             if (
-                appData.apkFile
+                appPublicId
             ) {
 
-                const appFilePath =
-                    path.join(
+                await deleteCloudinaryAsset(
 
-                        apkDir,
+                    appPublicId,
 
-                        path.basename(
-                            appData.apkFile
-                        )
+                    "raw"
 
-                    );
-
-
-                if (
-                    fs.existsSync(
-                        appFilePath
-                    )
-                ) {
-
-                    fs.unlinkSync(
-                        appFilePath
-                    );
-
-                }
+                );
 
             }
 
 
-            // ------------------------------
+            // ==================================================
             // DELETE SCREENSHOTS
-            // ------------------------------
+            // ==================================================
 
             if (
                 Array.isArray(
@@ -1745,26 +2126,23 @@ server.delete(
                     of appData.screenshots
                 ) {
 
-                    const screenshotPath =
-                        path.join(
-
-                            screenshotDir,
-
-                            path.basename(
-                                screenshot
-                            )
-
+                    const screenshotPublicId =
+                        getCloudinaryPublicId(
+                            screenshot,
+                            "image"
                         );
 
 
                     if (
-                        fs.existsSync(
-                            screenshotPath
-                        )
+                        screenshotPublicId
                     ) {
 
-                        fs.unlinkSync(
-                            screenshotPath
+                        await deleteCloudinaryAsset(
+
+                            screenshotPublicId,
+
+                            "image"
+
                         );
 
                     }
@@ -1774,9 +2152,9 @@ server.delete(
             }
 
 
-            // ------------------------------
+            // ==================================================
             // DELETE REVIEWS
-            // ------------------------------
+            // ==================================================
 
             await Review.deleteMany({
 
@@ -1786,9 +2164,9 @@ server.delete(
             });
 
 
-            // ------------------------------
+            // ==================================================
             // DELETE APP
-            // ------------------------------
+            // ==================================================
 
             await App.findByIdAndDelete(
                 appData._id
@@ -1803,7 +2181,9 @@ server.delete(
             });
 
 
-        } catch (error) {
+        } catch (
+            error
+        ) {
 
             console.error(
                 "Delete app error:",
@@ -1870,6 +2250,10 @@ server.put(
         res
     ) {
 
+        const temporaryFiles = [];
+
+        const uploadedCloudinaryAssets = [];
+
         try {
 
             const {
@@ -1879,10 +2263,6 @@ server.put(
                     req
                 );
 
-
-            // ------------------------------
-            // FIND APP
-            // ------------------------------
 
             const appData =
                 await App.findById(
@@ -1904,10 +2284,6 @@ server.put(
             }
 
 
-            // ------------------------------
-            // CHECK OWNERSHIP
-            // ------------------------------
-
             if (
                 appData.uploadedBy
                     .toString() !==
@@ -1925,10 +2301,6 @@ server.put(
 
             }
 
-
-            // ------------------------------
-            // GET INFORMATION
-            // ------------------------------
 
             const name =
                 req.body[
@@ -1976,10 +2348,6 @@ server.put(
             }
 
 
-            // ------------------------------
-            // UPDATE TEXT
-            // ------------------------------
-
             appData.name =
                 name.trim();
 
@@ -2010,47 +2378,68 @@ server.put(
                 ].length > 0
             ) {
 
-                const oldLogo =
-                    appData.logo;
-
-
                 const newLogoFile =
                     req.files[
                         "app-logo"
                     ][0];
 
 
+                temporaryFiles.push(
+                    newLogoFile.path
+                );
+
+
+                const newLogoUpload =
+                    await uploadToCloudinary(
+
+                        newLogoFile.path,
+
+                        {
+
+                            folder:
+                                "tekohub/logos",
+
+                            resource_type:
+                                "image"
+
+                        }
+
+                    );
+
+
+                uploadedCloudinaryAssets.push({
+
+                    publicId:
+                        newLogoUpload.public_id,
+
+                    resourceType:
+                        "image"
+
+                });
+
+
+                const oldLogoPublicId =
+                    getCloudinaryPublicId(
+                        appData.logo,
+                        "image"
+                    );
+
+
                 appData.logo =
-                    `/uploads/logos/${newLogoFile.filename}`;
+                    newLogoUpload.secure_url;
 
 
                 if (
-                    oldLogo
+                    oldLogoPublicId
                 ) {
 
-                    const oldLogoPath =
-                        path.join(
+                    await deleteCloudinaryAsset(
 
-                            logoDir,
+                        oldLogoPublicId,
 
-                            path.basename(
-                                oldLogo
-                            )
+                        "image"
 
-                        );
-
-
-                    if (
-                        fs.existsSync(
-                            oldLogoPath
-                        )
-                    ) {
-
-                        fs.unlinkSync(
-                            oldLogoPath
-                        );
-
-                    }
+                    );
 
                 }
 
@@ -2071,47 +2460,74 @@ server.put(
                 ].length > 0
             ) {
 
-                const oldAppFile =
-                    appData.apkFile;
-
-
                 const newAppFile =
                     req.files[
                         "app-file"
                     ][0];
 
 
+                temporaryFiles.push(
+                    newAppFile.path
+                );
+
+
+                const newAppUpload =
+                    await uploadLargeRawFile(
+
+                        newAppFile.path,
+
+                        {
+
+                            folder:
+                                "tekohub/apps",
+
+                            resource_type:
+                                "raw",
+
+                            use_filename:
+                                true,
+
+                            unique_filename:
+                                true
+
+                        }
+
+                    );
+
+
+                uploadedCloudinaryAssets.push({
+
+                    publicId:
+                        newAppUpload.public_id,
+
+                    resourceType:
+                        "raw"
+
+                });
+
+
+                const oldAppPublicId =
+                    getCloudinaryPublicId(
+                        appData.apkFile,
+                        "raw"
+                    );
+
+
                 appData.apkFile =
-                    `/uploads/apks/${newAppFile.filename}`;
+                    newAppUpload.secure_url;
 
 
                 if (
-                    oldAppFile
+                    oldAppPublicId
                 ) {
 
-                    const oldAppFilePath =
-                        path.join(
+                    await deleteCloudinaryAsset(
 
-                            apkDir,
+                        oldAppPublicId,
 
-                            path.basename(
-                                oldAppFile
-                            )
+                        "raw"
 
-                        );
-
-
-                    if (
-                        fs.existsSync(
-                            oldAppFilePath
-                        )
-                    ) {
-
-                        fs.unlinkSync(
-                            oldAppFilePath
-                        );
-
-                    }
+                    );
 
                 }
 
@@ -2132,53 +2548,42 @@ server.put(
                 ].length > 0
             ) {
 
-                // ------------------------------
-                // DELETE OLD SCREENSHOTS
-                // ------------------------------
-
-                if (
+                const oldScreenshots =
                     Array.isArray(
                         appData.screenshots
                     )
+                        ? appData.screenshots
+                        : [];
+
+
+                for (
+                    const screenshot
+                    of oldScreenshots
                 ) {
 
-                    for (
-                        const screenshot
-                        of appData.screenshots
+                    const oldPublicId =
+                        getCloudinaryPublicId(
+                            screenshot,
+                            "image"
+                        );
+
+
+                    if (
+                        oldPublicId
                     ) {
 
-                        const oldScreenshotPath =
-                            path.join(
+                        await deleteCloudinaryAsset(
 
-                                screenshotDir,
+                            oldPublicId,
 
-                                path.basename(
-                                    screenshot
-                                )
+                            "image"
 
-                            );
-
-
-                        if (
-                            fs.existsSync(
-                                oldScreenshotPath
-                            )
-                        ) {
-
-                            fs.unlinkSync(
-                                oldScreenshotPath
-                            );
-
-                        }
+                        );
 
                     }
 
                 }
 
-
-                // ------------------------------
-                // SAVE NEW SCREENSHOTS
-                // ------------------------------
 
                 const newScreenshots = [];
 
@@ -2190,10 +2595,42 @@ server.put(
                     ]
                 ) {
 
+                    temporaryFiles.push(
+                        file.path
+                    );
+
+
+                    const screenshotUpload =
+                        await uploadToCloudinary(
+
+                            file.path,
+
+                            {
+
+                                folder:
+                                    "tekohub/screenshots",
+
+                                resource_type:
+                                    "image"
+
+                            }
+
+                        );
+
+
+                    uploadedCloudinaryAssets.push({
+
+                        publicId:
+                            screenshotUpload.public_id,
+
+                        resourceType:
+                            "image"
+
+                    });
+
+
                     newScreenshots.push(
-
-                        `/uploads/screenshots/${file.filename}`
-
+                        screenshotUpload.secure_url
                     );
 
                 }
@@ -2205,11 +2642,19 @@ server.put(
             }
 
 
-            // ------------------------------
-            // SAVE
-            // ------------------------------
-
             await appData.save();
+
+
+            for (
+                const filePath
+                of temporaryFiles
+            ) {
+
+                deleteTempFile(
+                    filePath
+                );
+
+            }
 
 
             res.json({
@@ -2223,12 +2668,42 @@ server.put(
             });
 
 
-        } catch (error) {
+        } catch (
+            error
+        ) {
 
             console.error(
                 "Edit app error:",
                 error
             );
+
+
+            for (
+                const asset
+                of uploadedCloudinaryAssets
+            ) {
+
+                await deleteCloudinaryAsset(
+
+                    asset.publicId,
+
+                    asset.resourceType
+
+                );
+
+            }
+
+
+            for (
+                const filePath
+                of temporaryFiles
+            ) {
+
+                deleteTempFile(
+                    filePath
+                );
+
+            }
 
 
             if (
@@ -2303,10 +2778,6 @@ server.post(
                 );
 
 
-            // ------------------------------
-            // FIND APP
-            // ------------------------------
-
             const appData =
                 await App.findById(
                     req.params.id
@@ -2326,10 +2797,6 @@ server.post(
 
             }
 
-
-            // ------------------------------
-            // REVIEW DATA
-            // ------------------------------
 
             const {
                 rating,
@@ -2383,10 +2850,6 @@ server.post(
             }
 
 
-            // ------------------------------
-            // CHECK EXISTING REVIEW
-            // ------------------------------
-
             const existingReview =
                 await Review.findOne({
 
@@ -2415,10 +2878,6 @@ server.post(
             }
 
 
-            // ------------------------------
-            // CREATE REVIEW
-            // ------------------------------
-
             const review =
                 new Review({
 
@@ -2442,10 +2901,6 @@ server.post(
 
             await review.save();
 
-
-            // ------------------------------
-            // RECALCULATE RATING
-            // ------------------------------
 
             const allReviews =
                 await Review.find({
@@ -2495,10 +2950,6 @@ server.post(
             await appData.save();
 
 
-            // ------------------------------
-            // RESPONSE
-            // ------------------------------
-
             res.status(
                 201
             ).json({
@@ -2512,7 +2963,9 @@ server.post(
             });
 
 
-        } catch (error) {
+        } catch (
+            error
+        ) {
 
             console.error(
                 "Review error:",
@@ -2573,7 +3026,9 @@ server.get(
             });
 
 
-        } catch (error) {
+        } catch (
+            error
+        ) {
 
             console.error(
                 "Get reviews error:",
@@ -2612,10 +3067,6 @@ server.get(
 
         try {
 
-            // ------------------------------
-            // FIND APP
-            // ------------------------------
-
             const appData =
                 await App.findById(
                     req.params.id
@@ -2636,10 +3087,6 @@ server.get(
             }
 
 
-            // ------------------------------
-            // CHECK APP FILE
-            // ------------------------------
-
             if (
                 !appData.apkFile
             ) {
@@ -2656,9 +3103,92 @@ server.get(
             }
 
 
-            // ------------------------------
-            // GET FILENAME
-            // ------------------------------
+            // ==================================================
+            // CLOUDINARY FILE
+            // ==================================================
+
+            if (
+                appData.apkFile.includes(
+                    "res.cloudinary.com"
+                )
+            ) {
+
+                appData.downloads =
+                    (
+                        appData.downloads ||
+                        0
+                    ) + 1;
+
+
+                await appData.save();
+
+
+                const appFilename =
+                    path.basename(
+                        appData.apkFile
+                    );
+
+
+                const extension =
+                    path
+                        .extname(
+                            appFilename
+                        )
+                        .toLowerCase();
+
+
+                const contentTypes = {
+
+                    ".apk":
+                        "application/vnd.android.package-archive",
+
+                    ".exe":
+                        "application/vnd.microsoft.portable-executable",
+
+                    ".msi":
+                        "application/x-msi",
+
+                    ".deb":
+                        "application/vnd.debian.binary-package",
+
+                    ".appimage":
+                        "application/x-executable",
+
+                    ".dmg":
+                        "application/x-apple-diskimage",
+
+                    ".app":
+                        "application/octet-stream"
+
+                };
+
+
+                res.setHeader(
+
+                    "Content-Type",
+
+                    contentTypes[
+                        extension
+                    ] ||
+                    "application/octet-stream"
+
+                );
+
+
+                // ==================================================
+                // REDIRECT TO CLOUDINARY
+                // ==================================================
+
+                return res.redirect(
+                    appData.apkFile
+                );
+
+            }
+
+
+            // ==================================================
+            // LEGACY LOCAL FILE
+            // ==================================================
 
             const appFilename =
                 path.basename(
@@ -2666,23 +3196,23 @@ server.get(
                 );
 
 
-            // ------------------------------
-            // FILE PATH
-            // ------------------------------
+            const legacyAppDir =
+                path.join(
+                    __dirname,
+                    "uploads",
+                    "apks"
+                );
+
 
             const filePath =
                 path.join(
 
-                    apkDir,
+                    legacyAppDir,
 
                     appFilename
 
                 );
 
-
-            // ------------------------------
-            // CHECK FILE
-            // ------------------------------
 
             if (
                 !fs.existsSync(
@@ -2690,27 +3220,17 @@ server.get(
                 )
             ) {
 
-                console.error(
-                    "App file not found:",
-                    filePath
-                );
-
-
                 return res.status(
                     404
                 ).json({
 
                     message:
-                        "App file not found."
+                        "App file not found. This app was uploaded using the old storage system and must be uploaded again."
 
                 });
 
             }
 
-
-            // ------------------------------
-            // INCREASE DOWNLOADS
-            // ------------------------------
 
             appData.downloads =
                 (
@@ -2722,87 +3242,18 @@ server.get(
             await appData.save();
 
 
-            // ------------------------------
-            // CONTENT TYPE
-            // ------------------------------
-
-            const extension =
-                path
-                    .extname(
-                        appFilename
-                    )
-                    .toLowerCase();
-
-
-            const contentTypes = {
-
-                ".apk":
-                    "application/vnd.android.package-archive",
-
-                ".exe":
-                    "application/vnd.microsoft.portable-executable",
-
-                ".msi":
-                    "application/x-msi",
-
-                ".deb":
-                    "application/vnd.debian.binary-package",
-
-                ".appimage":
-                    "application/x-executable",
-
-                ".dmg":
-                    "application/x-apple-diskimage",
-
-                ".app":
-                    "application/octet-stream"
-
-            };
-
-
-            res.setHeader(
-
-                "Content-Type",
-
-                contentTypes[
-                    extension
-                ] ||
-                "application/octet-stream"
-
-            );
-
-
-            // ------------------------------
-            // DOWNLOAD
-            // ------------------------------
-
-            res.download(
+            return res.download(
 
                 filePath,
 
-                appFilename,
-
-                function (
-                    error
-                ) {
-
-                    if (
-                        error
-                    ) {
-
-                        console.error(
-                            "File download error:",
-                            error
-                        );
-
-                    }
-
-                }
+                appFilename
 
             );
 
 
-        } catch (error) {
+        } catch (
+            error
+        ) {
 
             console.error(
                 "Download error:",
@@ -2920,10 +3371,6 @@ server.use(
         );
 
 
-        // ------------------------------
-        // MULTER ERROR
-        // ------------------------------
-
         if (
             error instanceof
             multer.MulterError
@@ -2941,10 +3388,6 @@ server.use(
         }
 
 
-        // ------------------------------
-        // NORMAL ERROR
-        // ------------------------------
-
         if (
             error &&
             error.message
@@ -2961,10 +3404,6 @@ server.use(
 
         }
 
-
-        // ------------------------------
-        // UNKNOWN ERROR
-        // ------------------------------
 
         res.status(
             500
