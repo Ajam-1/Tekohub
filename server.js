@@ -3,6 +3,10 @@
 // CLOUDINARY STORAGE VERSION
 // ======================================================
 
+// ======================================================
+// IMPORTS
+// ======================================================
+
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
@@ -32,6 +36,24 @@ dotenv.config();
 
 
 // ======================================================
+// CLOUDINARY
+// ======================================================
+
+cloudinary.config({
+
+    cloud_name:
+        process.env.CLOUDINARY_CLOUD_NAME,
+
+    api_key:
+        process.env.CLOUDINARY_API_KEY,
+
+    api_secret:
+        process.env.CLOUDINARY_API_SECRET
+
+});
+
+
+// ======================================================
 // SERVER
 // ======================================================
 
@@ -54,53 +76,10 @@ server.use(
 
 
 // ======================================================
-// CHECK REQUIRED ENVIRONMENT VARIABLES
-// ======================================================
-
-const requiredEnv = [
-    "MONGODB_URI",
-    "JWT_SECRET",
-    "CLOUDINARY_CLOUD_NAME",
-    "CLOUDINARY_API_KEY",
-    "CLOUDINARY_API_SECRET"
-];
-
-for (const variable of requiredEnv) {
-
-    if (!process.env[variable]) {
-
-        console.error(
-            `WARNING: ${variable} is missing.`
-        );
-
-    }
-
-}
-
-
-// ======================================================
-// CLOUDINARY CONFIGURATION
-// ======================================================
-
-cloudinary.config({
-
-    cloud_name:
-        process.env.CLOUDINARY_CLOUD_NAME,
-
-    api_key:
-        process.env.CLOUDINARY_API_KEY,
-
-    api_secret:
-        process.env.CLOUDINARY_API_SECRET
-
-});
-
-
-// ======================================================
 // TEMPORARY UPLOAD DIRECTORIES
 // ======================================================
 
-const tempUploadDir =
+const uploadDir =
     path.join(
         __dirname,
         "temp-uploads"
@@ -108,19 +87,19 @@ const tempUploadDir =
 
 const appDir =
     path.join(
-        tempUploadDir,
+        uploadDir,
         "apps"
     );
 
 const logoDir =
     path.join(
-        tempUploadDir,
+        uploadDir,
         "logos"
     );
 
 const screenshotDir =
     path.join(
-        tempUploadDir,
+        uploadDir,
         "screenshots"
     );
 
@@ -158,11 +137,17 @@ fs.mkdirSync(
 const allowedAppExtensions = [
 
     ".apk",
+
     ".exe",
+
     ".msi",
+
     ".deb",
+
     ".appimage",
+
     ".dmg",
+
     ".app"
 
 ];
@@ -187,10 +172,12 @@ const storage =
                     "app-logo"
                 ) {
 
-                    return callback(
+                    callback(
                         null,
                         logoDir
                     );
+
+                    return;
 
                 }
 
@@ -200,10 +187,12 @@ const storage =
                     "app-file"
                 ) {
 
-                    return callback(
+                    callback(
                         null,
                         appDir
                     );
+
+                    return;
 
                 }
 
@@ -215,15 +204,17 @@ const storage =
                         "screenshots"
                 ) {
 
-                    return callback(
+                    callback(
                         null,
                         screenshotDir
                     );
 
+                    return;
+
                 }
 
 
-                return callback(
+                callback(
                     new Error(
                         `Unexpected file field: ${file.fieldname}`
                     )
@@ -248,9 +239,13 @@ const storage =
 
 
                 const uniqueName =
-                    `${Date.now()}-${Math.round(
-                        Math.random() * 1000000000
-                    )}${extension}`;
+                    Date.now() +
+                    "-" +
+                    Math.round(
+                        Math.random() *
+                        1000000000
+                    ) +
+                    extension;
 
 
                 callback(
@@ -267,135 +262,147 @@ const storage =
 // FILE FILTER
 // ======================================================
 
-function fileFilter(
-    req,
-    file,
-    callback
-) {
-
-    // ==================================================
-    // APP LOGO
-    // ==================================================
-
-    if (
-        file.fieldname ===
-        "app-logo"
+const fileFilter =
+    function (
+        req,
+        file,
+        callback
     ) {
 
-        const allowedLogoTypes = [
-
-            "image/png",
-            "image/jpeg",
-            "image/webp"
-
-        ];
-
+        // ==================================================
+        // APP LOGO
+        // ==================================================
 
         if (
-            allowedLogoTypes.includes(
-                file.mimetype
-            )
+            file.fieldname ===
+            "app-logo"
         ) {
 
-            return callback(
-                null,
-                true
-            );
+            const allowedLogoTypes = [
 
-        }
+                "image/png",
 
+                "image/jpeg",
 
-        return callback(
-            new Error(
-                "App logo must be PNG, JPEG, or WEBP."
-            )
-        );
+                "image/webp"
 
-    }
+            ];
 
 
-    // ==================================================
-    // APP FILE
-    // ==================================================
-
-    if (
-        file.fieldname ===
-        "app-file"
-    ) {
-
-        const extension =
-            path
-                .extname(
-                    file.originalname
+            if (
+                allowedLogoTypes.includes(
+                    file.mimetype
                 )
-                .toLowerCase();
+            ) {
 
+                callback(
+                    null,
+                    true
+                );
 
-        if (
-            allowedAppExtensions.includes(
-                extension
-            )
-        ) {
+            } else {
 
-            return callback(
-                null,
-                true
-            );
+                callback(
+                    new Error(
+                        "App logo must be PNG, JPEG, or WEBP."
+                    )
+                );
 
-        }
+            }
 
-
-        return callback(
-            new Error(
-                "Supported app files: APK, EXE, MSI, DEB, AppImage, DMG, and APP."
-            )
-        );
-
-    }
-
-
-    // ==================================================
-    // SCREENSHOTS
-    // ==================================================
-
-    if (
-        file.fieldname ===
-            "screenshots[]" ||
-        file.fieldname ===
-            "screenshots"
-    ) {
-
-        if (
-            file.mimetype &&
-            file.mimetype.startsWith(
-                "image/"
-            )
-        ) {
-
-            return callback(
-                null,
-                true
-            );
+            return;
 
         }
 
 
-        return callback(
+        // ==================================================
+        // APP FILE
+        // ==================================================
+
+        if (
+            file.fieldname ===
+            "app-file"
+        ) {
+
+            const extension =
+                path
+                    .extname(
+                        file.originalname
+                    )
+                    .toLowerCase();
+
+
+            if (
+                allowedAppExtensions.includes(
+                    extension
+                )
+            ) {
+
+                callback(
+                    null,
+                    true
+                );
+
+            } else {
+
+                callback(
+                    new Error(
+                        "Supported app files: APK, EXE, MSI, DEB, AppImage, DMG, and APP."
+                    )
+                );
+
+            }
+
+            return;
+
+        }
+
+
+        // ==================================================
+        // SCREENSHOTS
+        // ==================================================
+
+        if (
+            file.fieldname ===
+                "screenshots[]" ||
+            file.fieldname ===
+                "screenshots"
+        ) {
+
+            if (
+                file.mimetype &&
+                file.mimetype.startsWith(
+                    "image/"
+                )
+            ) {
+
+                callback(
+                    null,
+                    true
+                );
+
+            } else {
+
+                callback(
+                    new Error(
+                        "Screenshots must be image files."
+                    )
+                );
+
+            }
+
+            return;
+
+        }
+
+
+        callback(
             new Error(
-                "Screenshots must be image files."
+                `Unexpected file field: ${file.fieldname}`
             )
         );
 
-    }
-
-
-    return callback(
-        new Error(
-            `Unexpected file field: ${file.fieldname}`
-        )
-    );
-
-}
+    };
 
 
 // ======================================================
@@ -413,9 +420,10 @@ const upload =
 
         limits: {
 
-            // 100 MB
             fileSize:
-                100 * 1024 * 1024
+                1000 *
+                1024 *
+                1024
 
         }
 
@@ -423,7 +431,7 @@ const upload =
 
 
 // ======================================================
-// AUTHENTICATION
+// AUTHENTICATION HELPER
 // ======================================================
 
 function getToken(req) {
@@ -458,7 +466,13 @@ function getToken(req) {
 }
 
 
-async function authenticateUser(req) {
+// ======================================================
+// AUTHENTICATE USER
+// ======================================================
+
+async function authenticateUser(
+    req
+) {
 
     const token =
         getToken(req);
@@ -504,25 +518,25 @@ async function authenticateUser(req) {
 
 
 // ======================================================
-// DATABASE
+// MONGODB CONNECTION
 // ======================================================
 
 async function connectDatabase() {
 
-    if (
-        !process.env.MONGODB_URI
-    ) {
-
-        console.error(
-            "MONGODB_URI is missing."
-        );
-
-        return false;
-
-    }
-
-
     try {
+
+        if (
+            !process.env.MONGODB_URI
+        ) {
+
+            console.error(
+                "MONGODB_URI is missing from .env"
+            );
+
+            return;
+
+        }
+
 
         await mongoose.connect(
             process.env.MONGODB_URI,
@@ -534,11 +548,9 @@ async function connectDatabase() {
 
 
         console.log(
-            "MongoDB connected successfully."
+            "MongoDB connected successfully"
         );
 
-
-        return true;
 
     } catch (error) {
 
@@ -547,16 +559,13 @@ async function connectDatabase() {
             error.message
         );
 
-
-        return false;
-
     }
 
 }
 
 
 // ======================================================
-// CLOUDINARY UPLOAD
+// CLOUDINARY HELPERS
 // ======================================================
 
 function uploadToCloudinary(
@@ -580,12 +589,13 @@ function uploadToCloudinary(
 
                     if (error) {
 
-                        return reject(
+                        reject(
                             error
                         );
 
-                    }
+                        return;
 
+                    }
 
                     resolve(
                         result
@@ -615,32 +625,31 @@ function uploadLargeRawFile(
             reject
         ) {
 
-            cloudinary.uploader.upload_large(
-                filePath,
-                {
-                    ...options,
-                    resource_type: "raw"
-                },
-                function (
-                    error,
-                    result
-                ) {
+            const uploadStream =
+                cloudinary.uploader.upload_large(
+                    filePath,
+                    options,
+                    function (
+                        error,
+                        result
+                    ) {
 
-                    if (error) {
+                        if (error) {
 
-                        return reject(
-                            error
+                            reject(
+                                error
+                            );
+
+                            return;
+
+                        }
+
+                        resolve(
+                            result
                         );
 
                     }
-
-
-                    resolve(
-                        result
-                    );
-
-                }
-            );
+                );
 
         }
     );
@@ -673,6 +682,7 @@ async function deleteCloudinaryAsset(
             publicId,
 
             {
+
                 resource_type:
                     resourceType,
 
@@ -681,11 +691,14 @@ async function deleteCloudinaryAsset(
 
                 invalidate:
                     true
+
             }
 
         );
 
-    } catch (error) {
+    } catch (
+        error
+    ) {
 
         console.error(
             "Cloudinary delete error:",
@@ -698,7 +711,7 @@ async function deleteCloudinaryAsset(
 
 
 // ======================================================
-// GET CLOUDINARY PUBLIC ID
+// GET CLOUDINARY PUBLIC ID FROM URL
 // ======================================================
 
 function getCloudinaryPublicId(
@@ -726,7 +739,7 @@ function getCloudinaryPublicId(
             );
 
 
-        let pathname =
+        const pathname =
             parsedUrl.pathname;
 
 
@@ -795,7 +808,9 @@ function getCloudinaryPublicId(
 
         return publicId;
 
-    } catch (error) {
+    } catch (
+        error
+    ) {
 
         return null;
 
@@ -805,7 +820,7 @@ function getCloudinaryPublicId(
 
 
 // ======================================================
-// DELETE TEMPORARY FILE
+// CLEAN TEMP FILE
 // ======================================================
 
 function deleteTempFile(
@@ -835,7 +850,9 @@ function deleteTempFile(
 
         }
 
-    } catch (error) {
+    } catch (
+        error
+    ) {
 
         console.error(
             "Temporary file cleanup error:",
@@ -932,7 +949,7 @@ server.post(
                 new User({
 
                     username:
-                        username.trim(),
+                        username,
 
                     email:
                         email.toLowerCase(),
@@ -946,7 +963,7 @@ server.post(
             await newUser.save();
 
 
-            return res.status(
+            res.status(
                 201
             ).json({
 
@@ -955,7 +972,10 @@ server.post(
 
             });
 
-        } catch (error) {
+
+        } catch (
+            error
+        ) {
 
             console.error(
                 "Signup error:",
@@ -963,7 +983,7 @@ server.post(
             );
 
 
-            return res.status(
+            res.status(
                 500
             ).json({
 
@@ -1034,9 +1054,7 @@ server.post(
                 });
 
 
-            if (
-                !user
-            ) {
+            if (!user) {
 
                 return res.status(
                     401
@@ -1077,6 +1095,7 @@ server.post(
                 jwt.sign(
 
                     {
+
                         userId:
                             user._id,
 
@@ -1085,19 +1104,22 @@ server.post(
 
                         email:
                             user.email
+
                     },
 
                     process.env.JWT_SECRET,
 
                     {
+
                         expiresIn:
                             "30d"
+
                     }
 
                 );
 
 
-            return res.json({
+            res.json({
 
                 message:
                     "Login successful.",
@@ -1117,7 +1139,10 @@ server.post(
 
             });
 
-        } catch (error) {
+
+        } catch (
+            error
+        ) {
 
             console.error(
                 "Login error:",
@@ -1125,7 +1150,7 @@ server.post(
             );
 
 
-            return res.status(
+            res.status(
                 500
             ).json({
 
@@ -1169,7 +1194,7 @@ server.get(
                 );
 
 
-            return res.json({
+            res.json({
 
                 loggedIn:
                     true,
@@ -1179,9 +1204,12 @@ server.get(
 
             });
 
-        } catch (error) {
 
-            return res.status(
+        } catch (
+            error
+        ) {
+
+            res.status(
                 401
             ).json({
 
@@ -1215,6 +1243,7 @@ server.post(
 
             maxCount:
                 1
+
         },
 
         {
@@ -1223,6 +1252,7 @@ server.post(
 
             maxCount:
                 1
+
         },
 
         {
@@ -1231,6 +1261,7 @@ server.post(
 
             maxCount:
                 5
+
         }
 
     ]),
@@ -1242,13 +1273,9 @@ server.post(
 
         const temporaryFiles = [];
 
-        const uploadedCloudinaryAssets = [];
+        let uploadedCloudinaryAssets = [];
 
         try {
-
-            // ==================================================
-            // AUTHENTICATE
-            // ==================================================
 
             const {
                 user
@@ -1258,29 +1285,31 @@ server.post(
                 );
 
 
-            // ==================================================
-            // GET FORM DATA
-            // ==================================================
-
             const name =
-                req.body["app-name"];
+                req.body[
+                    "app-name"
+                ];
 
             const developer =
-                req.body["app-developer"];
+                req.body[
+                    "app-developer"
+                ];
 
             const version =
-                req.body["app-version"];
+                req.body[
+                    "app-version"
+                ];
 
             const category =
-                req.body["app-category"];
+                req.body[
+                    "app-category"
+                ];
 
             const description =
-                req.body["app-description"];
+                req.body[
+                    "app-description"
+                ];
 
-
-            // ==================================================
-            // VALIDATE FORM DATA
-            // ==================================================
 
             if (
                 !name ||
@@ -1302,14 +1331,14 @@ server.post(
             }
 
 
-            // ==================================================
-            // VALIDATE LOGO
-            // ==================================================
-
             if (
                 !req.files ||
-                !req.files["app-logo"] ||
-                req.files["app-logo"].length === 0
+                !req.files[
+                    "app-logo"
+                ] ||
+                req.files[
+                    "app-logo"
+                ].length === 0
             ) {
 
                 return res.status(
@@ -1324,14 +1353,14 @@ server.post(
             }
 
 
-            // ==================================================
-            // VALIDATE APP FILE
-            // ==================================================
-
             if (
                 !req.files ||
-                !req.files["app-file"] ||
-                req.files["app-file"].length === 0
+                !req.files[
+                    "app-file"
+                ] ||
+                req.files[
+                    "app-file"
+                ].length === 0
             ) {
 
                 return res.status(
@@ -1347,10 +1376,15 @@ server.post(
 
 
             const logoFile =
-                req.files["app-logo"][0];
+                req.files[
+                    "app-logo"
+                ][0];
+
 
             const appFile =
-                req.files["app-file"][0];
+                req.files[
+                    "app-file"
+                ][0];
 
 
             temporaryFiles.push(
@@ -1362,8 +1396,30 @@ server.post(
             );
 
 
+            if (
+                req.files[
+                    "screenshots[]"
+                ]
+            ) {
+
+                for (
+                    const file
+                    of req.files[
+                        "screenshots[]"
+                    ]
+                ) {
+
+                    temporaryFiles.push(
+                        file.path
+                    );
+
+                }
+
+            }
+
+
             // ==================================================
-            // UPLOAD LOGO
+            // UPLOAD LOGO TO CLOUDINARY
             // ==================================================
 
             const logoUpload =
@@ -1372,11 +1428,13 @@ server.post(
                     logoFile.path,
 
                     {
+
                         folder:
                             "tekohub/logos",
 
                         resource_type:
                             "image"
+
                     }
 
                 );
@@ -1394,7 +1452,7 @@ server.post(
 
 
             // ==================================================
-            // UPLOAD APP FILE
+            // UPLOAD APP FILE TO CLOUDINARY
             // ==================================================
 
             const appUpload =
@@ -1403,14 +1461,19 @@ server.post(
                     appFile.path,
 
                     {
+
                         folder:
                             "tekohub/apps",
+
+                        resource_type:
+                            "raw",
 
                         use_filename:
                             true,
 
                         unique_filename:
                             true
+
                     }
 
                 );
@@ -1428,62 +1491,65 @@ server.post(
 
 
             // ==================================================
-            // UPLOAD SCREENSHOTS
+            // SCREENSHOTS
             // ==================================================
 
             const screenshots = [];
 
 
-            const screenshotFiles =
-                req.files["screenshots[]"] || [];
-
-
-            for (
-                const file
-                of screenshotFiles
+            if (
+                req.files[
+                    "screenshots[]"
+                ]
             ) {
 
-                temporaryFiles.push(
-                    file.path
-                );
+                for (
+                    const file
+                    of req.files[
+                        "screenshots[]"
+                    ]
+                ) {
+
+                    const screenshotUpload =
+                        await uploadToCloudinary(
+
+                            file.path,
+
+                            {
+
+                                folder:
+                                    "tekohub/screenshots",
+
+                                resource_type:
+                                    "image"
+
+                            }
+
+                        );
 
 
-                const screenshotUpload =
-                    await uploadToCloudinary(
+                    uploadedCloudinaryAssets.push({
 
-                        file.path,
+                        publicId:
+                            screenshotUpload.public_id,
 
-                        {
-                            folder:
-                                "tekohub/screenshots",
+                        resourceType:
+                            "image"
 
-                            resource_type:
-                                "image"
-                        }
+                    });
 
+
+                    screenshots.push(
+                        screenshotUpload.secure_url
                     );
 
-
-                uploadedCloudinaryAssets.push({
-
-                    publicId:
-                        screenshotUpload.public_id,
-
-                    resourceType:
-                        "image"
-
-                });
-
-
-                screenshots.push(
-                    screenshotUpload.secure_url
-                );
+                }
 
             }
 
 
             // ==================================================
-            // SAVE APP TO DATABASE
+            // CREATE APP
             // ==================================================
 
             const newApp =
@@ -1514,13 +1580,7 @@ server.post(
                         screenshots,
 
                     uploadedBy:
-                        user._id,
-
-                    downloads:
-                        0,
-
-                    rating:
-                        0
+                        user._id
 
                 });
 
@@ -1529,7 +1589,7 @@ server.post(
 
 
             // ==================================================
-            // DELETE TEMP FILES
+            // DELETE TEMPORARY FILES
             // ==================================================
 
             for (
@@ -1544,7 +1604,7 @@ server.post(
             }
 
 
-            return res.status(
+            res.status(
                 201
             ).json({
 
@@ -1556,7 +1616,10 @@ server.post(
 
             });
 
-        } catch (error) {
+
+        } catch (
+            error
+        ) {
 
             console.error(
                 "App upload error:",
@@ -1565,7 +1628,7 @@ server.post(
 
 
             // ==================================================
-            // DELETE CLOUDINARY FILES
+            // REMOVE CLOUDINARY FILES IF DATABASE SAVE FAILED
             // ==================================================
 
             for (
@@ -1583,10 +1646,6 @@ server.post(
 
             }
 
-
-            // ==================================================
-            // DELETE TEMP FILES
-            // ==================================================
 
             for (
                 const filePath
@@ -1651,13 +1710,28 @@ server.post(
             }
 
 
-            return res.status(
+            if (
+                error.message
+            ) {
+
+                return res.status(
+                    400
+                ).json({
+
+                    message:
+                        error.message
+
+                });
+
+            }
+
+
+            res.status(
                 500
             ).json({
 
                 message:
-                    error.message ||
-                    "Server error while uploading app."
+                    "Server error."
 
             });
 
@@ -1684,19 +1758,24 @@ server.get(
             const apps =
                 await App.find()
                     .sort({
+
                         createdAt:
                             -1
+
                     });
 
 
-            return res.json({
+            res.json({
 
                 apps:
                     apps
 
             });
 
-        } catch (error) {
+
+        } catch (
+            error
+        ) {
 
             console.error(
                 "Get apps error:",
@@ -1704,7 +1783,7 @@ server.get(
             );
 
 
-            return res.status(
+            res.status(
                 500
             ).json({
 
@@ -1754,14 +1833,17 @@ server.get(
                 });
 
 
-            return res.json({
+            res.json({
 
                 apps:
                     apps
 
             });
 
-        } catch (error) {
+
+        } catch (
+            error
+        ) {
 
             console.error(
                 "Get my apps error:",
@@ -1769,7 +1851,7 @@ server.get(
             );
 
 
-            return res.status(
+            res.status(
                 401
             ).json({
 
@@ -1819,14 +1901,17 @@ server.get(
                 });
 
 
-            return res.json({
+            res.json({
 
                 reviews:
                     reviews
 
             });
 
-        } catch (error) {
+
+        } catch (
+            error
+        ) {
 
             console.error(
                 "Get my reviews error:",
@@ -1834,7 +1919,7 @@ server.get(
             );
 
 
-            return res.status(
+            res.status(
                 401
             ).json({
 
@@ -1868,9 +1953,7 @@ server.get(
                 );
 
 
-            if (
-                !appData
-            ) {
+            if (!appData) {
 
                 return res.status(
                     404
@@ -1884,14 +1967,17 @@ server.get(
             }
 
 
-            return res.json({
+            res.json({
 
                 app:
                     appData
 
             });
 
-        } catch (error) {
+
+        } catch (
+            error
+        ) {
 
             console.error(
                 "Get app error:",
@@ -1899,14 +1985,14 @@ server.get(
             );
 
 
-            return res.status(
+            res.status(
                 500
             ).json({
 
                 message:
                     "Failed to get app."
 
-            });
+                });
 
         }
 
@@ -1941,9 +2027,7 @@ server.delete(
                 );
 
 
-            if (
-                !appData
-            ) {
+            if (!appData) {
 
                 return res.status(
                     404
@@ -1958,7 +2042,8 @@ server.delete(
 
 
             if (
-                appData.uploadedBy.toString() !==
+                appData.uploadedBy
+                    .toString() !==
                 user._id.toString()
             ) {
 
@@ -1975,7 +2060,7 @@ server.delete(
 
 
             // ==================================================
-            // DELETE LOGO
+            // DELETE LOGO FROM CLOUDINARY
             // ==================================================
 
             const logoPublicId =
@@ -1990,15 +2075,18 @@ server.delete(
             ) {
 
                 await deleteCloudinaryAsset(
+
                     logoPublicId,
+
                     "image"
+
                 );
 
             }
 
 
             // ==================================================
-            // DELETE APP FILE
+            // DELETE APP FILE FROM CLOUDINARY
             // ==================================================
 
             const appPublicId =
@@ -2013,8 +2101,11 @@ server.delete(
             ) {
 
                 await deleteCloudinaryAsset(
+
                     appPublicId,
+
                     "raw"
+
                 );
 
             }
@@ -2024,34 +2115,37 @@ server.delete(
             // DELETE SCREENSHOTS
             // ==================================================
 
-            const screenshots =
+            if (
                 Array.isArray(
                     appData.screenshots
                 )
-                    ? appData.screenshots
-                    : [];
-
-
-            for (
-                const screenshot
-                of screenshots
             ) {
 
-                const publicId =
-                    getCloudinaryPublicId(
-                        screenshot,
-                        "image"
-                    );
-
-
-                if (
-                    publicId
+                for (
+                    const screenshot
+                    of appData.screenshots
                 ) {
 
-                    await deleteCloudinaryAsset(
-                        publicId,
-                        "image"
-                    );
+                    const screenshotPublicId =
+                        getCloudinaryPublicId(
+                            screenshot,
+                            "image"
+                        );
+
+
+                    if (
+                        screenshotPublicId
+                    ) {
+
+                        await deleteCloudinaryAsset(
+
+                            screenshotPublicId,
+
+                            "image"
+
+                        );
+
+                    }
 
                 }
 
@@ -2071,7 +2165,7 @@ server.delete(
 
 
             // ==================================================
-            // DELETE DATABASE RECORD
+            // DELETE APP
             // ==================================================
 
             await App.findByIdAndDelete(
@@ -2079,14 +2173,17 @@ server.delete(
             );
 
 
-            return res.json({
+            res.json({
 
                 message:
                     "App deleted successfully."
 
             });
 
-        } catch (error) {
+
+        } catch (
+            error
+        ) {
 
             console.error(
                 "Delete app error:",
@@ -2094,7 +2191,7 @@ server.delete(
             );
 
 
-            return res.status(
+            res.status(
                 500
             ).json({
 
@@ -2125,6 +2222,7 @@ server.put(
 
             maxCount:
                 1
+
         },
 
         {
@@ -2133,6 +2231,7 @@ server.put(
 
             maxCount:
                 1
+
         },
 
         {
@@ -2141,6 +2240,7 @@ server.put(
 
             maxCount:
                 5
+
         }
 
     ]),
@@ -2170,9 +2270,7 @@ server.put(
                 );
 
 
-            if (
-                !appData
-            ) {
+            if (!appData) {
 
                 return res.status(
                     404
@@ -2187,7 +2285,8 @@ server.put(
 
 
             if (
-                appData.uploadedBy.toString() !==
+                appData.uploadedBy
+                    .toString() !==
                 user._id.toString()
             ) {
 
@@ -2204,19 +2303,29 @@ server.put(
 
 
             const name =
-                req.body["app-name"];
+                req.body[
+                    "app-name"
+                ];
 
             const developer =
-                req.body["app-developer"];
+                req.body[
+                    "app-developer"
+                ];
 
             const version =
-                req.body["app-version"];
+                req.body[
+                    "app-version"
+                ];
 
             const category =
-                req.body["app-category"];
+                req.body[
+                    "app-category"
+                ];
 
             const description =
-                req.body["app-description"];
+                req.body[
+                    "app-description"
+                ];
 
 
             if (
@@ -2259,16 +2368,20 @@ server.put(
             // REPLACE LOGO
             // ==================================================
 
-            const logoFiles =
-                req.files["app-logo"] || [];
-
-
             if (
-                logoFiles.length > 0
+                req.files &&
+                req.files[
+                    "app-logo"
+                ] &&
+                req.files[
+                    "app-logo"
+                ].length > 0
             ) {
 
                 const newLogoFile =
-                    logoFiles[0];
+                    req.files[
+                        "app-logo"
+                    ][0];
 
 
                 temporaryFiles.push(
@@ -2282,11 +2395,13 @@ server.put(
                         newLogoFile.path,
 
                         {
+
                             folder:
                                 "tekohub/logos",
 
                             resource_type:
                                 "image"
+
                         }
 
                     );
@@ -2319,8 +2434,11 @@ server.put(
                 ) {
 
                     await deleteCloudinaryAsset(
+
                         oldLogoPublicId,
+
                         "image"
+
                     );
 
                 }
@@ -2332,16 +2450,20 @@ server.put(
             // REPLACE APP FILE
             // ==================================================
 
-            const appFiles =
-                req.files["app-file"] || [];
-
-
             if (
-                appFiles.length > 0
+                req.files &&
+                req.files[
+                    "app-file"
+                ] &&
+                req.files[
+                    "app-file"
+                ].length > 0
             ) {
 
                 const newAppFile =
-                    appFiles[0];
+                    req.files[
+                        "app-file"
+                    ][0];
 
 
                 temporaryFiles.push(
@@ -2355,14 +2477,19 @@ server.put(
                         newAppFile.path,
 
                         {
+
                             folder:
                                 "tekohub/apps",
+
+                            resource_type:
+                                "raw",
 
                             use_filename:
                                 true,
 
                             unique_filename:
                                 true
+
                         }
 
                     );
@@ -2395,8 +2522,11 @@ server.put(
                 ) {
 
                     await deleteCloudinaryAsset(
+
                         oldAppPublicId,
+
                         "raw"
+
                     );
 
                 }
@@ -2408,12 +2538,14 @@ server.put(
             // REPLACE SCREENSHOTS
             // ==================================================
 
-            const screenshotFiles =
-                req.files["screenshots[]"] || [];
-
-
             if (
-                screenshotFiles.length > 0
+                req.files &&
+                req.files[
+                    "screenshots[]"
+                ] &&
+                req.files[
+                    "screenshots[]"
+                ].length > 0
             ) {
 
                 const oldScreenshots =
@@ -2441,8 +2573,11 @@ server.put(
                     ) {
 
                         await deleteCloudinaryAsset(
+
                             oldPublicId,
+
                             "image"
+
                         );
 
                     }
@@ -2455,7 +2590,9 @@ server.put(
 
                 for (
                     const file
-                    of screenshotFiles
+                    of req.files[
+                        "screenshots[]"
+                    ]
                 ) {
 
                     temporaryFiles.push(
@@ -2469,11 +2606,13 @@ server.put(
                             file.path,
 
                             {
+
                                 folder:
                                     "tekohub/screenshots",
 
                                 resource_type:
                                     "image"
+
                             }
 
                         );
@@ -2503,16 +2642,8 @@ server.put(
             }
 
 
-            // ==================================================
-            // SAVE
-            // ==================================================
-
             await appData.save();
 
-
-            // ==================================================
-            // DELETE TEMP FILES
-            // ==================================================
 
             for (
                 const filePath
@@ -2526,7 +2657,7 @@ server.put(
             }
 
 
-            return res.json({
+            res.json({
 
                 message:
                     "App updated successfully.",
@@ -2536,7 +2667,10 @@ server.put(
 
             });
 
-        } catch (error) {
+
+        } catch (
+            error
+        ) {
 
             console.error(
                 "Edit app error:",
@@ -2550,8 +2684,11 @@ server.put(
             ) {
 
                 await deleteCloudinaryAsset(
+
                     asset.publicId,
+
                     asset.resourceType
+
                 );
 
             }
@@ -2586,12 +2723,27 @@ server.put(
             }
 
 
-            return res.status(
+            if (
+                error.message
+            ) {
+
+                return res.status(
+                    400
+                ).json({
+
+                    message:
+                        error.message
+
+                });
+
+            }
+
+
+            res.status(
                 500
             ).json({
 
                 message:
-                    error.message ||
                     "Failed to update app."
 
             });
@@ -2608,7 +2760,9 @@ server.put(
 // ======================================================
 
 server.post(
+
     "/api/apps/:id/reviews",
+
     async function (
         req,
         res
@@ -2630,9 +2784,7 @@ server.post(
                 );
 
 
-            if (
-                !appData
-            ) {
+            if (!appData) {
 
                 return res.status(
                     404
@@ -2653,9 +2805,11 @@ server.post(
 
 
             if (
-                rating === undefined ||
+                rating ===
+                    undefined ||
                 !comment ||
-                comment.trim() === ""
+                comment.trim() ===
+                    ""
             ) {
 
                 return res.status(
@@ -2796,7 +2950,7 @@ server.post(
             await appData.save();
 
 
-            return res.status(
+            res.status(
                 201
             ).json({
 
@@ -2808,7 +2962,10 @@ server.post(
 
             });
 
-        } catch (error) {
+
+        } catch (
+            error
+        ) {
 
             console.error(
                 "Review error:",
@@ -2816,7 +2973,7 @@ server.post(
             );
 
 
-            return res.status(
+            res.status(
                 500
             ).json({
 
@@ -2828,6 +2985,7 @@ server.post(
         }
 
     }
+
 );
 
 
@@ -2836,7 +2994,9 @@ server.post(
 // ======================================================
 
 server.get(
+
     "/api/apps/:id/reviews",
+
     async function (
         req,
         res
@@ -2858,14 +3018,17 @@ server.get(
                 });
 
 
-            return res.json({
+            res.json({
 
                 reviews:
                     reviews
 
             });
 
-        } catch (error) {
+
+        } catch (
+            error
+        ) {
 
             console.error(
                 "Get reviews error:",
@@ -2873,7 +3036,7 @@ server.get(
             );
 
 
-            return res.status(
+            res.status(
                 500
             ).json({
 
@@ -2885,6 +3048,7 @@ server.get(
         }
 
     }
+
 );
 
 
@@ -2893,7 +3057,9 @@ server.get(
 // ======================================================
 
 server.get(
+
     "/api/apps/:id/download",
+
     async function (
         req,
         res
@@ -2907,13 +3073,7 @@ server.get(
                 );
 
 
-            // ==================================================
-            // APP DOES NOT EXIST
-            // ==================================================
-
-            if (
-                !appData
-            ) {
+            if (!appData) {
 
                 return res.status(
                     404
@@ -2927,10 +3087,6 @@ server.get(
             }
 
 
-            // ==================================================
-            // NO FILE
-            // ==================================================
-
             if (
                 !appData.apkFile
             ) {
@@ -2940,7 +3096,7 @@ server.get(
                 ).json({
 
                     message:
-                        "This app has no download file."
+                        "App file not found."
 
                 });
 
@@ -2952,18 +3108,11 @@ server.get(
             // ==================================================
 
             if (
-                appData.apkFile.startsWith(
-                    "https://res.cloudinary.com/"
+                appData.apkFile.includes(
+                    "res.cloudinary.com"
                 )
             ) {
 
-                console.log(
-                    "Cloudinary download:",
-                    appData.apkFile
-                );
-
-
-                // Increase download count
                 appData.downloads =
                     (
                         appData.downloads ||
@@ -2974,8 +3123,62 @@ server.get(
                 await appData.save();
 
 
-                // Redirect directly to permanent
-                // Cloudinary storage.
+                const appFilename =
+                    path.basename(
+                        appData.apkFile
+                    );
+
+
+                const extension =
+                    path
+                        .extname(
+                            appFilename
+                        )
+                        .toLowerCase();
+
+
+                const contentTypes = {
+
+                    ".apk":
+                        "application/vnd.android.package-archive",
+
+                    ".exe":
+                        "application/vnd.microsoft.portable-executable",
+
+                    ".msi":
+                        "application/x-msi",
+
+                    ".deb":
+                        "application/vnd.debian.binary-package",
+
+                    ".appimage":
+                        "application/x-executable",
+
+                    ".dmg":
+                        "application/x-apple-diskimage",
+
+                    ".app":
+                        "application/octet-stream"
+
+                };
+
+
+                res.setHeader(
+
+                    "Content-Type",
+
+                    contentTypes[
+                        extension
+                    ] ||
+                    "application/octet-stream"
+
+                );
+
+
+                // ==================================================
+                // REDIRECT TO CLOUDINARY
+                // ==================================================
+
                 return res.redirect(
                     appData.apkFile
                 );
@@ -2984,92 +3187,73 @@ server.get(
 
 
             // ==================================================
-            // OLD LOCAL FILE
+            // LEGACY LOCAL FILE
             // ==================================================
 
+            const appFilename =
+                path.basename(
+                    appData.apkFile
+                );
+
+
+            const legacyAppDir =
+                path.join(
+                    __dirname,
+                    "uploads",
+                    "apks"
+                );
+
+
+            const filePath =
+                path.join(
+
+                    legacyAppDir,
+
+                    appFilename
+
+                );
+
+
             if (
-                appData.apkFile.startsWith(
-                    "/uploads/"
+                !fs.existsSync(
+                    filePath
                 )
             ) {
 
-                const filename =
-                    path.basename(
-                        appData.apkFile
-                    );
+                return res.status(
+                    404
+                ).json({
 
+                    message:
+                        "App file not found. This app was uploaded using the old storage system and must be uploaded again."
 
-                const oldUploadDir =
-                    path.join(
-                        __dirname,
-                        "uploads",
-                        "apks"
-                    );
-
-
-                const oldFilePath =
-                    path.join(
-                        oldUploadDir,
-                        filename
-                    );
-
-
-                if (
-                    !fs.existsSync(
-                        oldFilePath
-                    )
-                ) {
-
-                    return res.status(
-                        404
-                    ).json({
-
-                        message:
-                            "This app was uploaded using the old storage system. Please upload it again."
-
-                    });
-
-                }
-
-
-                appData.downloads =
-                    (
-                        appData.downloads ||
-                        0
-                    ) + 1;
-
-
-                await appData.save();
-
-
-                return res.download(
-                    oldFilePath,
-                    filename
-                );
+                });
 
             }
 
 
-            // ==================================================
-            // UNKNOWN FILE URL
-            // ==================================================
+            appData.downloads =
+                (
+                    appData.downloads ||
+                    0
+                ) + 1;
 
-            console.error(
-                "Unknown app file URL:",
-                appData.apkFile
+
+            await appData.save();
+
+
+            return res.download(
+
+                filePath,
+
+                appFilename
+
             );
 
 
-            return res.status(
-                404
-            ).json({
-
-                message:
-                    "The app download file is unavailable. Please upload the app again."
-
-            });
-
-        } catch (error) {
+        } catch (
+            error
+        ) {
 
             console.error(
                 "Download error:",
@@ -3081,7 +3265,7 @@ server.get(
                 !res.headersSent
             ) {
 
-                return res.status(
+                res.status(
                     500
                 ).json({
 
@@ -3095,6 +3279,7 @@ server.get(
         }
 
     }
+
 );
 
 
@@ -3109,7 +3294,7 @@ server.post(
         res
     ) {
 
-        return res.json({
+        res.json({
 
             message:
                 "Logged out successfully."
@@ -3121,7 +3306,7 @@ server.post(
 
 
 // ======================================================
-// SERVER TEST
+// HOME / SERVER TEST
 // ======================================================
 
 server.get(
@@ -3131,7 +3316,7 @@ server.get(
         res
     ) {
 
-        return res.json({
+        res.json({
 
             status:
                 "online",
@@ -3146,7 +3331,7 @@ server.get(
 
 
 // ======================================================
-// 404
+// 404 HANDLER
 // ======================================================
 
 server.use(
@@ -3155,7 +3340,7 @@ server.use(
         res
     ) {
 
-        return res.status(
+        res.status(
             404
         ).json({
 
@@ -3203,12 +3388,28 @@ server.use(
         }
 
 
-        return res.status(
-            400
+        if (
+            error &&
+            error.message
+        ) {
+
+            return res.status(
+                400
+            ).json({
+
+                message:
+                    error.message
+
+            });
+
+        }
+
+
+        res.status(
+            500
         ).json({
 
             message:
-                error.message ||
                 "Something went wrong on the server."
 
         });
@@ -3228,19 +3429,7 @@ const PORT =
 
 async function startServer() {
 
-    const databaseConnected =
-        await connectDatabase();
-
-
-    if (
-        !databaseConnected
-    ) {
-
-        console.error(
-            "Server starting without MongoDB connection."
-        );
-
-    }
+    await connectDatabase();
 
 
     server.listen(
