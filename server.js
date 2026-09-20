@@ -1472,7 +1472,9 @@ server.post(
                             true,
 
                         unique_filename:
-                            true
+                            true,
+
+                            chunk_size: 10 * 1024 * 1024,
 
                     }
 
@@ -1580,7 +1582,9 @@ server.post(
                         screenshots,
 
                     uploadedBy:
-                        user._id
+                        user._id,
+
+                        chunk_size: 10 * 1024 * 1024
 
                 });
 
