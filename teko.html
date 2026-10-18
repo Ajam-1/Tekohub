@@ -884,6 +884,18 @@ app.post("/groups/:id/messages", requireDatabase, authenticateToken, async (req,
             createdAt: message.createdAt
         });
 
+        // Notify everyone else in the group after replying, so sending is never slowed down by push
+        const myId = String(req.user.id);
+
+        group.members
+            .map(String)
+            .filter(memberId => memberId !== myId)
+            .forEach(memberId => {
+                pushToUser(memberId, group.name, `${req.user.username}: ${text}`).catch(error => {
+                    console.error("Group push failed:", error.message);
+                });
+            });
+
     } catch (error) {
         console.error("Send group message error:", error);
         res.status(500).json({ message: "Could not send message." });
